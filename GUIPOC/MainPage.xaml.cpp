@@ -5,15 +5,8 @@
 
 #include "pch.h"
 #include "MainPage.xaml.h"
-#include "new_race_view1.xaml.h"
 #include "BlankPage.xaml.h"
-#include "DBLite.h"
-#include "ImportAndExport.h"
-#include "Helpers.h"
-#include <locale>
-#include <codecvt>
-#include <string>
-#include <iostream>
+
 
 using namespace GUIPOC;
 

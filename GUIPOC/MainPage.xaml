@@ -19,8 +19,9 @@
 
 
             </NavigationView.MenuItems>
+            <Frame x:Name="contentFrame"/>
         </NavigationView>
-        <Frame x:Name="contentFrame"/>
+        
 
 
 
