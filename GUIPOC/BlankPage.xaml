@@ -1,0 +1,86 @@
+﻿<Page
+    x:Class="GUIPOC.BlankPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:GUIPOC"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+
+    <Grid>
+        <StackPanel x:Name="contentPanel" Margin="120,30,0,0">
+
+            <StackPanel x:Name="fileSelection" Orientation="Horizontal" Margin="0,20,0,20">
+                <TextBox x:Name="filePath" Text="Select Browse to find file." Width="300" HorizontalAlignment="Left"/>
+                <Button x:Name="fileInput" Content="Browse..." Height="31" Width="104" Click="browse_Click" />
+            </StackPanel>
+            <StackPanel x:Name="dataAndArrributes" Orientation="Horizontal">
+                <StackPanel x:Name="raceArrtibutes" Orientation="Vertical" Margin="0,20,100,20" Width="259" HorizontalAlignment="Left">
+                    <ComboBox x:Name="disciplineSelect" PlaceholderText="Type of Race" Height="51" Width="259"
+                      SelectionChanged="raceAttribute_SelectionChanged" Margin="0, 0, 0, 10" Loading="test">
+                        <x:String>Slalom</x:String>
+                        <x:String>Giant Slalom</x:String>
+                        <x:String>Super G</x:String>
+                    </ComboBox>
+                    <ComboBox x:Name="genderSelect" PlaceholderText ="Mens or Womens" Height="51" Width="259"
+                          SelectionChanged="gender_SelectionChanged" Margin="0, 0, 0, 10">
+                        <x:String>Mens</x:String>
+                        <x:String>Womens</x:String>
+                    </ComboBox>
+                    <ComboBox x:Name="seasonSelect" PlaceholderText="Season" Height="51" Width="259"
+                          SelectionChanged="season_SelectionChanged" Margin="0,0,0,10" Loading="season_Loading" >
+
+
+
+                    </ComboBox>
+                    <ComboBox x:Name="meetSelect" PlaceholderText="Meet" Height="51" Width="259"
+                          SelectionChanged="meet_SelectionChagned" Margin="0,0,0,10" Loading="meetSelect_Loading" IsEnabled="False">
+
+
+                    </ComboBox>
+                </StackPanel>
+                <StackPanel x:Name="colSelection1" Orientation="Vertical" Visibility="Visible" Margin="0,0,10,0">
+
+                    <ComboBox x:Name="col1" PlaceholderText="Value of this column">
+
+                    </ComboBox>
+                    <TextBlock x:Name="col1_text" Text="This is a test" HorizontalAlignment="Center"/>
+
+
+                </StackPanel>
+
+                <StackPanel x:Name="colSelection2" Orientation="Vertical" Visibility="Visible" Margin="0,0,10,0">
+
+                    <ComboBox x:Name="col2" PlaceholderText="Value of this column">
+
+                    </ComboBox>
+                    <TextBlock x:Name="col2_text" Text="This is a test" HorizontalAlignment="Center"/>
+
+
+                </StackPanel>
+
+                <StackPanel x:Name="colSelection3" Orientation="Vertical" Visibility="Visible" Margin="0,0,10,0">
+
+                    <ComboBox x:Name="col3" PlaceholderText="Value of this column">
+
+                    </ComboBox>
+                    <TextBlock x:Name="col3_text" Text="This is a test" HorizontalAlignment="Center"/>
+
+
+                </StackPanel>
+
+                <StackPanel x:Name="colSelection4" Orientation="Vertical" Visibility="Visible" Margin="0,0,10,0">
+
+                    <ComboBox x:Name="col4" PlaceholderText="Value of this column">
+
+                    </ComboBox>
+                    <TextBlock x:Name="col_text" Text="This is a test" HorizontalAlignment="Center"/>
+
+
+                </StackPanel>
+
+            </StackPanel>
+        </StackPanel>
+    </Grid>
+</Page>
