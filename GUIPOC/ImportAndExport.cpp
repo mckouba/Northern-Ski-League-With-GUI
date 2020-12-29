@@ -284,13 +284,15 @@ std::vector<std::string> getMeet_Data() {
 
 	std::vector<std::string> out;
 
-	while (!input.eof()) {
+	line = " ";
 
+	while (line != "") {
+		line = "";
 		rows.clear();
 
 		//read row of data
 		std::getline(input, line);
-
+		
 		//get each item and put it at the end of the output list
 		std::string t = line;
 		

@@ -191,6 +191,9 @@
     <ClInclude Include="DBLite.h" />
     <ClInclude Include="Helpers.h" />
     <ClInclude Include="ImportAndExport.h" />
+    <ClInclude Include="Inser_Meet.xaml.h">
+      <DependentUpon>Inser_Meet.xaml</DependentUpon>
+    </ClInclude>
     <ClInclude Include="pch.h" />
     <ClInclude Include="App.xaml.h">
       <DependentUpon>App.xaml</DependentUpon>
@@ -204,6 +207,9 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Page Include="BlankPage.xaml">
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Inser_Meet.xaml">
       <SubType>Designer</SubType>
     </Page>
     <Page Include="MainPage.xaml">
@@ -234,6 +240,9 @@
     <ClCompile Include="DBLite.cpp" />
     <ClCompile Include="Helpers.cpp" />
     <ClCompile Include="ImportAndExport.cpp" />
+    <ClCompile Include="Inser_Meet.xaml.cpp">
+      <DependentUpon>Inser_Meet.xaml</DependentUpon>
+    </ClCompile>
     <ClCompile Include="main.cpp" />
     <ClCompile Include="MainPage.xaml.cpp">
       <DependentUpon>MainPage.xaml</DependentUpon>

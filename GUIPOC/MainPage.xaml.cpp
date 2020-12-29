@@ -6,6 +6,7 @@
 #include "pch.h"
 #include "MainPage.xaml.h"
 #include "BlankPage.xaml.h"
+#include "Inser_Meet.xaml.h"
 
 
 using namespace GUIPOC;
@@ -37,6 +38,11 @@ void GUIPOC::MainPage::nav_Item_Invoked(Windows::UI::Xaml::Controls::NavigationV
 
 
 	auto navitemtag = args->InvokedItemContainer->Tag->ToString();
+	if (navitemtag == "a") {
+		Windows::UI::Xaml::Interop::TypeName temp = (Inser_Meet::typeid);
+		contentFrame->Navigate(temp);
+	}
+
 	if (navitemtag == "b") {
 		Windows::UI::Xaml::Interop::TypeName temp = (BlankPage::typeid);
 		contentFrame->Navigate(temp);

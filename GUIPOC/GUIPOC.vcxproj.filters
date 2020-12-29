@@ -79,6 +79,9 @@
     <Page Include="BlankPage.xaml">
       <Filter>Views</Filter>
     </Page>
+    <Page Include="Inser_Meet.xaml">
+      <Filter>Views</Filter>
+    </Page>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
