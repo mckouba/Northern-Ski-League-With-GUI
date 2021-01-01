@@ -23,5 +23,6 @@ namespace GUIPOC
 		void selectSeason_Loading(Windows::UI::Xaml::FrameworkElement^ sender, Platform::Object^ args);
 		void seasonSelect_SelectionChanged(Platform::Object^ sender, Windows::UI::Xaml::Controls::SelectionChangedEventArgs^ e);
 		void meetSelect_SelectionChanged(Platform::Object^ sender, Windows::UI::Xaml::Controls::SelectionChangedEventArgs^ e);
+		void confirmChanges_Click(Platform::Object^ sender, Windows::UI::Xaml::RoutedEventArgs^ e);
 	};
 }

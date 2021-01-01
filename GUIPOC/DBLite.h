@@ -40,7 +40,9 @@ public:
 	//insert data into the Season table
 	void insertDataSeason(char* bib, char* sl_points, char* gs_points, char* sg_points, char* season);
 	//insert data into the Meet_data table
-	void inertDataMeet_Data(char* meet_id, char* date, char* location);
+	void insertNewDataMeet_Data(const char* meet_id, const char* date, const char* location);
+	//update a meet's information	
+	void updateDataMeet_Data(const char* meet_id, const char* date, const char* location);
 	//get data from the requested table
 	void getData(const char* table);
 	//close the open database

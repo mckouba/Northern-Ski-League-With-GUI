@@ -171,7 +171,64 @@ void DBLite::insertDataMeets_sg(char* bib, char* sg_time, char* sg_points, char*
 
 void DBLite::insertDataSeason(char* bib, char* sl_points, char* gs_points, char* sg_points, char* season) {}
 
-void DBLite::inertDataMeet_Data(char* meet_id, char* date, char* location) {}
+void DBLite::insertNewDataMeet_Data(const char* meet_id, const char* date, const char* location) {
+
+
+	char* query;
+	int n;
+
+	//build string 
+	n = snprintf(NULL, 0, "INSERT INTO meet_data ('meet_id', 'date', 'location', 'season') VALUES ( %s, '%s', '%s', %s);", meet_id, date, location, selectedValues[2]);
+
+	query = (char*)malloc(n + 1);
+
+	n = snprintf(query, n+1, "INSERT INTO meet_data ('meet_id', 'date', 'location', 'season') VALUES ( %s, '%s', '%s', %s);", meet_id, date, location, selectedValues[2]);
+
+	//prepare query
+	sqlite3_prepare(db, query, strlen(query), &stmt, NULL);
+
+	//test it
+	rc = sqlite3_step(stmt);
+	checkDBErrors();
+
+	//finalize usage
+	sqlite3_finalize(stmt);
+
+	//free up space
+	free(query);
+
+
+}
+
+void DBLite::updateDataMeet_Data(const char* meet_id,const char* date, const char* location) {
+
+	char* query;
+	int n;
+
+	const char* season = selectedValues[2].c_str();
+
+	//build string 
+	n = snprintf(NULL, 0, "UPDATE meet_data set location='%s', date='%s' where meet_id=%s and season='%s';", location, date, meet_id, season);
+
+	query = (char*)malloc(n + 1);
+
+	n = snprintf(query, n+1, "UPDATE meet_data set location='%s', date='%s' where meet_id=%s and season='%s';", location, date, meet_id, season);
+
+	//prepare query
+	sqlite3_prepare(db, query, strlen(query), &stmt, NULL);
+
+	//test it
+	rc = sqlite3_step(stmt);
+	checkDBErrors();
+
+	//finalize usage
+	sqlite3_finalize(stmt);
+
+	//free up space
+	free(query);
+
+
+}
 
 void DBLite::getData(const char* table) {
 	//todo: callbackfunctions are not getting called

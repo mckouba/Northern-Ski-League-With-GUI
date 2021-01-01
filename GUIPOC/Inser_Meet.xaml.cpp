@@ -9,6 +9,7 @@
 #include "Helpers.h"
 #include "DBLite.h"
 #include "ImportAndExport.h"
+#include "MainPage.xaml.h"
 
 using namespace GUIPOC;
 
@@ -55,6 +56,9 @@ void GUIPOC::Inser_Meet::editOrAdd_SelectionChanged(Platform::Object^ sender, Wi
 		//make meet info panel visible
 		editMeetInfo->Visibility = Windows::UI::Xaml::Visibility::Visible;
 
+		applyChanges->Visibility = Windows::UI::Xaml::Visibility::Visible;
+		applyChanges->Content = "Apply Changes";
+
 	}
 	else {
 		//only other option is add
@@ -64,6 +68,10 @@ void GUIPOC::Inser_Meet::editOrAdd_SelectionChanged(Platform::Object^ sender, Wi
 
 		//enable the add new meet stackpanel
 		newMeetInfo->Visibility = Windows::UI::Xaml::Visibility::Visible;
+
+
+		applyChanges->Visibility = Windows::UI::Xaml::Visibility::Visible;
+		applyChanges->Content = "Add Meet";
 
 
 	}
@@ -137,7 +145,12 @@ void GUIPOC::Inser_Meet::seasonSelect_SelectionChanged(Platform::Object^ sender,
 		meetSelect->Items->Append(out);
 
 	}
+	//if there were no meets in this season say so and allow user to add a meet easily.
+	if (meetSelect->Items->Size == 0) {
 
+		meetSelect->Items->Append("Add a meet.");
+
+	}
 	meetSelect->IsEnabled = "True";
 }
 
@@ -146,8 +159,58 @@ void GUIPOC::Inser_Meet::meetSelect_SelectionChanged(Platform::Object^ sender, W
 {
 
 
-	auto temp = editDate->Date;
+
+	//convert to std::string
+	std::wstring temp(meetSelect->SelectedItem->ToString()->Data());
+	auto selected = make_string(temp);
+	//add to array of selected values
+
+	//if the selected option is add a meet
+	if (selected.compare("Add a meet") == 0){
+
+		editOrAdd->SelectedIndex = 1;
+		//reset current option
+		meetSelect->SelectedIndex = -1;
+
+	}
+	if (editOrAdd->SelectedIndex == 0 && selected.compare("") != 0) {
+		//get the index of the last comma which preceeds the date in the combobox string
+		int test = selected.find_last_of(',');
+		//get the date from the combobox string
+		std::string dateStr = selected.substr(test + 2, selected.length());
+
+		//set the textbox string to the date that is in the meet select combox
+		editDate->Text = convertFromString(dateStr);
+
+		std::string locationString = selected.substr(selected.find(',') + 2, (test - selected.find(',') - 2));
+		editLocation->Text = convertFromString(locationString);
+	}
+	if (selected.compare("") == 0) {
+		editDate->Text = "";
+		editLocation->Text = "";
+	}
+}
 
 
+void GUIPOC::Inser_Meet::confirmChanges_Click(Platform::Object^ sender, Windows::UI::Xaml::RoutedEventArgs^ e)
+{
+
+	DBLite db;
+	std::wstring date(editDate->Text->ToString()->Data());
+	std::wstring location(editLocation->Text->ToString()->Data());
+	int meet_id = (meetSelect->SelectedIndex + 1);
+	
+	
+	if (editOrAdd->SelectedIndex == 0) {
+		//this means it is an edit
+		db.updateDataMeet_Data(std::to_string(meet_id).c_str(), make_string(date).c_str() , make_string(location).c_str());
+	}
+	else {
+		//this means it is a new addition
+		db.insertNewDataMeet_Data(std::to_string(meet_id).c_str(), make_string(date).c_str(), make_string(location).c_str());
+
+	}
+
+	db.closeDB();
 
 }

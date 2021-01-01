@@ -17,35 +17,43 @@
                         <x:String>Add</x:String>
                     </ComboBox>
                     <ComboBox x:Name="seasonSelect" PlaceholderText="Season" Height="51" Width="259" Margin="0,0,0,10" IsEnabled="False" Loading="selectSeason_Loading" SelectionChanged="seasonSelect_SelectionChanged">
-                        
-                        
+
+
                     </ComboBox>
                     <ComboBox x:Name="meetSelect" PlaceholderText="Meet" Height="51" Width="259" Margin="0,0,0,10" IsEnabled="False" Visibility="Visible" SelectionChanged="meetSelect_SelectionChanged">
-                        
+
                     </ComboBox>
+                    <Button x:Name="applyChanges" Height="51" Width="259" Content="Apply" Visibility="Collapsed" >
+                        <Button.Flyout>
+                            <Flyout>
+                                <StackPanel>
+                                    <TextBlock Style="{ThemeResource BaseTextBlockStyle}" Text="Are you sure you want to apply these changes?" Margin="0,0,0,12"/>
+                                    <Button Content="Yes, apply changes." Click="confirmChanges_Click"/>
+                                </StackPanel>
+                            </Flyout>
+                        </Button.Flyout>
+                    </Button>
+
                 </StackPanel>
                 <StackPanel x:Name="editMeetInfo" Orientation="Vertical" Margin="0,20,100,20" Width="259" Visibility="Collapsed" >
 
-                    
-                    <CalendarDatePicker x:Name="editDate" PlaceholderText="Date of Meet" Width="259" Height ="51" FontSize="14" Margin="0,0,0,10"/>
+
+                    <TextBox x:Name="editDate" PlaceholderText="Date of Meet" Margin="0,0,0,10" Height="51" Width="259"/>
                     <TextBox x:Name="editLocation" PlaceholderText="Location of Meet" Margin="0,0,0,10" Height="51" Width="259"/>
-               
-                
+
+
                 </StackPanel>
                 <StackPanel x:Name="newMeetInfo" Orientation="Vertical" Margin="0,20,100,20" Width="259" Visibility="Collapsed">
                     <ComboBox x:Name="meetNumber" PlaceholderText="Meet Number" Margin="0,0,0,10" Height="51" Width="259">
-                        
+
                     </ComboBox>
-                    <CalendarDatePicker x:Name="date" PlaceholderText="Date of Meet" Width="259" Height ="51" FontSize="14" Margin="0,0,0,10"/>
+                    <TextBox x:Name="adddate" PlaceholderText="Date of Meet" Margin="0,0,0,10" Height="51" Width="259"/>
                     <TextBox x:Name="location" PlaceholderText="Location of Meet" Margin="0,0,0,10" Height="51" Width="259"/>
                 </StackPanel>
             </StackPanel>
-            
+
 
         </StackPanel>
-        <Button x:Name="applyChanges" HorizontalAlignment="Right" VerticalAlignment="Bottom" Height="51" Width="100" Content="Apply" Visibility="Collapsed">
-
-        </Button>
     </Grid>
     
 </Page>
