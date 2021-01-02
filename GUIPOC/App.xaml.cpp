@@ -94,6 +94,8 @@ void App::OnLaunched(Windows::ApplicationModel::Activation::LaunchActivatedEvent
             Window::Current->Activate();
         }
     }
+
+
 }
 
 /// <summary>

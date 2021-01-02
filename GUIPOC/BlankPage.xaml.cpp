@@ -32,6 +32,11 @@ using namespace Windows::Storage;
 
 // The Blank Page item template is documented at https://go.microsoft.com/fwlink/?LinkId=234238
 
+//global constant
+//I know it's bad but I'm lazy and it works
+Platform::Object^ prev[4];
+
+
 BlankPage::BlankPage()
 {
 	InitializeComponent();
@@ -187,3 +192,132 @@ void GUIPOC::BlankPage::meetSelect_Loading(Windows::UI::Xaml::FrameworkElement^ 
 }
 
 
+
+
+void GUIPOC::BlankPage::insertConfirm_Click(Platform::Object^ sender, Windows::UI::Xaml::RoutedEventArgs^ e)
+{
+
+
+	
+
+
+}
+
+
+void GUIPOC::BlankPage::col1_SelectionChanged(Platform::Object^ sender, Windows::UI::Xaml::Controls::SelectionChangedEventArgs^ e)
+{
+
+	
+
+	//ensure that the 'Value of this column' item is not removed
+	if (col1->SelectedIndex != (col1->Items->Size - 1)) {
+
+
+		//remove items from other comboboxes
+		unsigned int index;
+		//remove from second col
+		col2->Items->IndexOf(col1->SelectedItem, &index);
+		col2->Items->RemoveAt(index);
+		//remove from third col
+		col3->Items->IndexOf(col1->SelectedItem, &index);
+		col3->Items->RemoveAt(index);
+		//remove from fourth col
+		col4->Items->IndexOf(col1->SelectedItem, &index);
+		col4->Items->RemoveAt(index);
+
+
+	}
+	else {
+		//time to replace the item that was just unselected
+		col2->Items->InsertAt(0, prev[0]);
+		col3->Items->InsertAt(0, prev[0]);
+		col4->Items->InsertAt(0, prev[0]);
+	}
+
+	prev[0] = col1->SelectedItem;
+}
+
+void GUIPOC::BlankPage::col2_SelectionChanged(Platform::Object^ sender, Windows::UI::Xaml::Controls::SelectionChangedEventArgs^ e)
+{
+	//ensure that the 'Value of this column' item is not removed
+	if (col1->SelectedIndex != (col1->Items->Size - 1)) {
+		//remove items from other comboboxes
+		unsigned int index;
+		//remove from second col
+		col1->Items->IndexOf(col2->SelectedItem, &index);
+		col1->Items->RemoveAt(index);
+		//remove from third col
+		col3->Items->IndexOf(col2->SelectedItem, &index);
+		col3->Items->RemoveAt(index);
+		//remove from fourth col
+		col4->Items->IndexOf(col2->SelectedItem, &index);
+		col4->Items->RemoveAt(index);
+
+
+	}
+	else {
+		col1->Items->InsertAt(0, prev[1]);
+		col3->Items->InsertAt(0, prev[1]);
+		col4->Items->InsertAt(0, prev[1]);
+	}
+	prev[1] = col2->SelectedItem;
+}
+
+
+void GUIPOC::BlankPage::col3_SelectionChanged(Platform::Object^ sender, Windows::UI::Xaml::Controls::SelectionChangedEventArgs^ e)
+{
+	//ensure that the 'Value of this column' item is not removed
+	if (col1->SelectedIndex != (col1->Items->Size - 1)) {
+		//remove items from other comboboxes
+		unsigned int index;
+		//remove from second col
+		col1->Items->IndexOf(col3->SelectedItem, &index);
+		col1->Items->RemoveAt(index);
+		//remove from second col
+		col2->Items->IndexOf(col3->SelectedItem, &index);
+		col2->Items->RemoveAt(index);
+		//remove from fourth col
+		col4->Items->IndexOf(col3->SelectedItem, &index);
+		col4->Items->RemoveAt(index);
+
+	}
+	else {
+
+		col1->Items->InsertAt(0, prev[2]);
+		col2->Items->InsertAt(0, prev[2]);
+		col4->Items->InsertAt(0, prev[2]);
+
+	}
+
+	prev[2] = col3->SelectedItem;
+}
+
+
+void GUIPOC::BlankPage::col4_SelectionChanged(Platform::Object^ sender, Windows::UI::Xaml::Controls::SelectionChangedEventArgs^ e)
+{
+	//ensure that the 'Value of this column' item is not removed
+	if (col1->SelectedIndex != (col1->Items->Size - 1)) {
+
+		//remove items from other comboboxes
+		unsigned int index;
+		//remove from second col
+		col1->Items->IndexOf(col4->SelectedItem, &index);
+		col1->Items->RemoveAt(index);
+		//remove from third col
+		col3->Items->IndexOf(col4->SelectedItem, &index);
+		col3->Items->RemoveAt(index);
+		//remove from second col
+		col2->Items->IndexOf(col4->SelectedItem, &index);
+		col2->Items->RemoveAt(index);
+
+	}
+	else {
+
+		col1->Items->InsertAt(0, prev[3]);
+		col3->Items->InsertAt(0, prev[3]);
+		col2->Items->InsertAt(0, prev[3]);
+
+	}
+
+	prev[3] = col4->SelectedItem;
+}

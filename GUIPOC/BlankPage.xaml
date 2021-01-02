@@ -39,11 +39,25 @@
 
 
                     </ComboBox>
+                    <Button x:Name="insertConfirm" Height="51" Width="259" Content="Apply" Visibility="Collapsed" >
+                        <Button.Flyout>
+                            <Flyout>
+                                <StackPanel>
+                                    <TextBlock Style="{ThemeResource BaseTextBlockStyle}" Text="Are you sure you want to insert this race?" Margin="0,0,0,12"/>
+                                    <Button Content="Yes, insert race." Click="insertConfirm_Click"/>
+                                </StackPanel>
+                            </Flyout>
+                        </Button.Flyout>
+                    </Button>
                 </StackPanel>
                 <StackPanel x:Name="colSelection1" Orientation="Vertical" Visibility="Visible" Margin="0,0,10,0">
 
-                    <ComboBox x:Name="col1" PlaceholderText="Value of this column">
-
+                    <ComboBox x:Name="col1" PlaceholderText="Value of this column" Width="175" HorizontalContentAlignment="Center" SelectionChanged="col1_SelectionChanged">
+                        <x:String>Bib</x:String>
+                        <x:String>Name</x:String>
+                        <x:String>Team</x:String>
+                        <x:String>Time</x:String>
+                        <x:String>Value of this column</x:String>
                     </ComboBox>
                     <TextBlock x:Name="col1_text" Text="This is a test" HorizontalAlignment="Center"/>
 
@@ -52,8 +66,12 @@
 
                 <StackPanel x:Name="colSelection2" Orientation="Vertical" Visibility="Visible" Margin="0,0,10,0">
 
-                    <ComboBox x:Name="col2" PlaceholderText="Value of this column">
-
+                    <ComboBox x:Name="col2" PlaceholderText="Value of this column" Width="175" HorizontalContentAlignment="Center" SelectionChanged="col2_SelectionChanged">
+                        <x:String>Bib</x:String>
+                        <x:String>Name</x:String>
+                        <x:String>Team</x:String>
+                        <x:String>Time</x:String>
+                        <x:String>Value of this column</x:String>
                     </ComboBox>
                     <TextBlock x:Name="col2_text" Text="This is a test" HorizontalAlignment="Center"/>
 
@@ -62,8 +80,12 @@
 
                 <StackPanel x:Name="colSelection3" Orientation="Vertical" Visibility="Visible" Margin="0,0,10,0">
 
-                    <ComboBox x:Name="col3" PlaceholderText="Value of this column">
-
+                    <ComboBox x:Name="col3" PlaceholderText="Value of this column" Width="175" HorizontalContentAlignment="Center" SelectionChanged="col3_SelectionChanged">
+                        <x:String>Bib</x:String>
+                        <x:String>Name</x:String>
+                        <x:String>Team</x:String>
+                        <x:String>Time</x:String>
+                        <x:String>Value of this column</x:String>
                     </ComboBox>
                     <TextBlock x:Name="col3_text" Text="This is a test" HorizontalAlignment="Center"/>
 
@@ -72,8 +94,12 @@
 
                 <StackPanel x:Name="colSelection4" Orientation="Vertical" Visibility="Visible" Margin="0,0,10,0">
 
-                    <ComboBox x:Name="col4" PlaceholderText="Value of this column">
-
+                    <ComboBox x:Name="col4" PlaceholderText="Value of this column" Width="175" HorizontalContentAlignment="Center" SelectionChanged="col4_SelectionChanged">
+                        <x:String>Bib</x:String>
+                        <x:String>Name</x:String>
+                        <x:String>Team</x:String>
+                        <x:String>Time</x:String>
+                        <x:String>Value of this column</x:String>
                     </ComboBox>
                     <TextBlock x:Name="col_text" Text="This is a test" HorizontalAlignment="Center"/>
 
