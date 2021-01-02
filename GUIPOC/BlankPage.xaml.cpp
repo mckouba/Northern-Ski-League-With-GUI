@@ -131,6 +131,7 @@ void GUIPOC::BlankPage::season_SelectionChanged(Platform::Object^ sender, Window
 
 	meetSelect->IsEnabled = "True";
 
+
 }
 
 
