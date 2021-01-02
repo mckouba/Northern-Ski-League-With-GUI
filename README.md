@@ -1,5 +1,7 @@
 # Northern-Ski-League-With-GUI
 
+To edit this you will also need to install the Windows 10 SDK 10.0.18362.0 or above from the visual studio installer.
+
 To use this you need to move the test.db file located in the /database File/ directory to the directory where this app is installed.  It is generally installed in the directory similar to
 C:\Users\[your username]\appdata\local\Packages\[string of numbers]\LocalState\
 
