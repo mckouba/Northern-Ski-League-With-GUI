@@ -7,6 +7,9 @@
 #include "MainPage.xaml.h"
 #include "BlankPage.xaml.h"
 #include "Inser_Meet.xaml.h"
+#include "Get_Race_Results.xaml.h"
+#include "Get_Season_Results.xaml.h"
+#include "Insert_Season.xaml.h"
 
 
 using namespace GUIPOC;
@@ -45,6 +48,18 @@ void GUIPOC::MainPage::nav_Item_Invoked(Windows::UI::Xaml::Controls::NavigationV
 
 	if (navitemtag == "b") {
 		Windows::UI::Xaml::Interop::TypeName temp = (BlankPage::typeid);
+		contentFrame->Navigate(temp);
+	}
+	if (navitemtag == "c") {
+		Windows::UI::Xaml::Interop::TypeName temp = (Insert_Season::typeid);
+		contentFrame->Navigate(temp);
+	}
+	if (navitemtag == "d") {
+		Windows::UI::Xaml::Interop::TypeName temp = (Get_Race_Results::typeid);
+		contentFrame->Navigate(temp);
+	}
+	if (navitemtag == "e") {
+		Windows::UI::Xaml::Interop::TypeName temp = (Get_Season_Results::typeid);
 		contentFrame->Navigate(temp);
 	}
 

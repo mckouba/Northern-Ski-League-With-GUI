@@ -82,6 +82,15 @@
     <Page Include="Inser_Meet.xaml">
       <Filter>Views</Filter>
     </Page>
+    <Page Include="Insert_Season.xaml">
+      <Filter>Views</Filter>
+    </Page>
+    <Page Include="Get_Race_Results.xaml">
+      <Filter>Views</Filter>
+    </Page>
+    <Page Include="Get_Season_Results.xaml">
+      <Filter>Views</Filter>
+    </Page>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
