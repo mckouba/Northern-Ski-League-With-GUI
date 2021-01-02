@@ -213,4 +213,8 @@ void GUIPOC::Inser_Meet::confirmChanges_Click(Platform::Object^ sender, Windows:
 
 	db.closeDB();
 
+	meetSelect->SelectedIndex = -1;
+	
+	applyChanges->Flyout->Hide();
+
 }
