@@ -11,3 +11,8 @@ C:\Users\[your username]\appdata\local\Packages\[string of numbers]\LocalState\
 [your username] is your username
 [string of numbers] is a random combination of numbers that will be generated when the app is installed.  To determine it is the correct location the folder specified above will 
 have a test.db file in it as I will make the app create a default empty database.
+
+
+Leaving this doc here so I don't forget how to merge the master with another branch
+
+https://docs.microsoft.com/en-us/azure/devops/repos/git/pulling?view=azure-devops&tabs=visual-studio
