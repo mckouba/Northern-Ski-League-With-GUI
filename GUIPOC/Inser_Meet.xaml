@@ -25,7 +25,7 @@
 
 
                     </ComboBox>
-                    <ComboBox x:Name="meetSelect" PlaceholderText="Meet" Height="51" Width="259" Margin="0,0,0,10" IsEnabled="False" Visibility="Visible" SelectionChanged="meetSelect_SelectionChanged">
+                    <ComboBox x:Name="meetSelect" PlaceholderText="Meet" Height="51" Width="259" Margin="0,0,0,10" IsEnabled="False" Visibility="Collapsed" SelectionChanged="meetSelect_SelectionChanged">
 
                     </ComboBox>
                     <Button x:Name="applyChanges" Height="51" Width="259" Content="Apply" Visibility="Collapsed" >
