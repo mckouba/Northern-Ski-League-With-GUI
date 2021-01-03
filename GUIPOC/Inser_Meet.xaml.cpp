@@ -37,14 +37,25 @@ void GUIPOC::Inser_Meet::editOrAdd_SelectionChanged(Platform::Object^ sender, Wi
 	//make sure only things needed to be displayed are displayed
 
 	seasonSelect->IsEnabled = "False";
-	meetSelect->IsEnabled = "False";
+
+	
+	//	meetSelect->IsEnabled = "False";
 
 	//hidden until season is selected
-	location->IsEnabled = "False";
-	adddate->IsEnabled = "False";
-	meetNumber->IsEnabled = "False";
-	editDate->IsEnabled = "False";
-	editLocation->IsEnabled = "False";
+	
+	/*These are commented out because I guess they negate eachother?
+	
+	It seems that when the item is defaultly set to IsEnabled="False", and we
+	set it again to "False" it will negate and set it to true?
+
+	
+	*/
+	
+//	location->IsEnabled = "False";
+//	adddate->IsEnabled = "False";
+//	meetNumber->IsEnabled = "False";
+//	editDate->IsEnabled = "False";
+//	editLocation->IsEnabled = "False";
 
 	meetSelect->Visibility = Windows::UI::Xaml::Visibility::Collapsed;
 	editMeetInfo->Visibility = Windows::UI::Xaml::Visibility::Collapsed;
@@ -55,9 +66,9 @@ void GUIPOC::Inser_Meet::editOrAdd_SelectionChanged(Platform::Object^ sender, Wi
 
 
 		//enable season select
-		seasonSelect->IsEnabled = "True";
-		//enable meet slect
-		meetSelect->IsEnabled = "True"; 
+		seasonSelect->IsEnabled = "True"; 
+		
+		
 		//make meet slect visible
 		meetSelect->Visibility = Windows::UI::Xaml::Visibility::Visible;
 		//make meet info panel visible
@@ -65,6 +76,8 @@ void GUIPOC::Inser_Meet::editOrAdd_SelectionChanged(Platform::Object^ sender, Wi
 
 		applyChanges->Visibility = Windows::UI::Xaml::Visibility::Visible;
 		applyChanges->Content = "Apply Changes";
+
+
 
 	}
 
@@ -81,22 +94,32 @@ void GUIPOC::Inser_Meet::editOrAdd_SelectionChanged(Platform::Object^ sender, Wi
 		applyChanges->Visibility = Windows::UI::Xaml::Visibility::Visible;
 		applyChanges->Content = "Add Meet";
 
+		//if switching from edit to add we need to disable the edit boxes so if
+		//it is changed back to edit there cannot be any fields editable when they
+		//should not be
+		
+		if (editDate->IsEnabled.ToString()->Length() == 4) {
 
+			editDate->IsEnabled = "False";
+			editLocation->IsEnabled = "False";
+
+
+		}
 	}
 
+	meetSelect->SelectedIndex = -1;
 
 }
 
 void GUIPOC::Inser_Meet::selectSeason_Loading(Windows::UI::Xaml::FrameworkElement^ sender, Platform::Object^ args)
 {
-	//unhides buttons if season is selected
-	if (seasonSelect->SelectedItem == 0) {
-		location->IsEnabled = "True";
-		adddate->IsEnabled = "True";
-		meetNumber->IsEnabled = "True";
-		editDate->IsEnabled = "True";
-		editLocation->IsEnabled = "True";
-	}
+	//unhides buttons if season is selected and the selection is 'Add'
+	//will ensure that the boxes needed for the edit are enabled, but the options for an add are stil disabled until a meet is selected 
+	//in the add option
+//	if (seasonSelect->SelectedIndex == 1) {
+//		editDate->IsEnabled = "True";
+//		editLocation->IsEnabled = "True";
+//	}
 
 	DBLite sql;
 	sql.getData("seasons");
@@ -104,6 +127,13 @@ void GUIPOC::Inser_Meet::selectSeason_Loading(Windows::UI::Xaml::FrameworkElemen
 	std::vector<std::string> seasons = getSeasonsData();
 
 	sql.closeDB();
+
+	//populate the meet number combobox with 1-6
+	for (int i = 1; i <= 6; i++) {
+
+		meetNumber->Items->Append(i);
+
+	}
 
 	for (auto it = seasons.cbegin(); it != seasons.cend(); ++it) {
 
@@ -114,6 +144,21 @@ void GUIPOC::Inser_Meet::selectSeason_Loading(Windows::UI::Xaml::FrameworkElemen
 
 		//add string to the dropdown
 		seasonSelect->Items->Append(out);
+
+		//remove the existing meet numbers from the meet number combobox
+
+
+		//move this to the seasonSelecte_SelectionChanged method so it is updated when the season is changed
+		//get index of the item to be removed
+		unsigned int index;
+
+		Platform::Object^ test = std::stoi(temp.substr(5,1));
+
+		meetNumber->Items->IndexOf(test, &index);
+
+		meetNumber->Items->RemoveAt(index);
+
+
 
 	}
 
@@ -167,7 +212,12 @@ void GUIPOC::Inser_Meet::seasonSelect_SelectionChanged(Platform::Object^ sender,
 		meetSelect->Items->Append("Add a meet.");
 
 	}
+	//allow meet selection
 	meetSelect->IsEnabled = "True";
+	//allow the addition of another meet
+	location->IsEnabled = "True";
+	adddate->IsEnabled = "True";
+	meetNumber->IsEnabled = "True";
 }
 
 
@@ -205,6 +255,15 @@ void GUIPOC::Inser_Meet::meetSelect_SelectionChanged(Platform::Object^ sender, W
 		editDate->Text = "";
 		editLocation->Text = "";
 	}
+
+	//unhides buttons if season is selected
+	if (editOrAdd->SelectedIndex == 1) {
+
+	}
+	else if(editOrAdd->SelectedIndex == 0 && meetSelect->SelectedIndex != -1) {
+		editDate->IsEnabled = "True";
+		editLocation->IsEnabled = "True";
+	}
 }
 
 
@@ -232,5 +291,17 @@ void GUIPOC::Inser_Meet::confirmChanges_Click(Platform::Object^ sender, Windows:
 	meetSelect->SelectedIndex = -1;
 	
 	applyChanges->Flyout->Hide();
+
+}
+
+
+void GUIPOC::Inser_Meet::meetNumber_Loading(Windows::UI::Xaml::FrameworkElement^ sender, Platform::Object^ args)
+{
+
+
+
+
+
+
 
 }

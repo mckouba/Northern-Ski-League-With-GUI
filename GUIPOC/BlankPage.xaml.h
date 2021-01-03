@@ -27,5 +27,10 @@ namespace GUIPOC
 		void season_Loading(Windows::UI::Xaml::FrameworkElement^ sender, Platform::Object^ args);
 		void meetSelect_Loading(Windows::UI::Xaml::FrameworkElement^ sender, Platform::Object^ args);
 		//		void updateMeetBox();
+		void insertConfirm_Click(Platform::Object^ sender, Windows::UI::Xaml::RoutedEventArgs^ e);
+		void col1_SelectionChanged(Platform::Object^ sender, Windows::UI::Xaml::Controls::SelectionChangedEventArgs^ e);
+		void col2_SelectionChanged(Platform::Object^ sender, Windows::UI::Xaml::Controls::SelectionChangedEventArgs^ e);
+		void col3_SelectionChanged(Platform::Object^ sender, Windows::UI::Xaml::Controls::SelectionChangedEventArgs^ e);
+		void col4_SelectionChanged(Platform::Object^ sender, Windows::UI::Xaml::Controls::SelectionChangedEventArgs^ e);
 	};
 }
