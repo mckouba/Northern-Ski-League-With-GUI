@@ -1,0 +1,58 @@
+++----------------------Table Definitions----------------------++
+
+CREATE TABLE Athletes (bib INTEGER PRIMARY KEY, name STRING, team STRING, gender char);
+
+CREATE TABLE meet_team_results (
+team    string,
+sl_1_bib        integer,
+sl_2_bib        integer,
+sl_3_bib        integer,
+sl_4_bib        integer,
+gs_1_bib        integer,
+gs_2_bib        integer,
+gs_3_bib        integer,
+gs_4_bib        integer,
+sg_1_bib        integer,
+sg_2_bib        integer,
+sg_3_bib        integer,
+sg_4_bib        integer,
+total_points    integer,
+season  string references season (season),
+meet_id integer references meet_data(meet_id)
+);
+
+CREATE TABLE season (
+bib     INTEGER REFERENCES Athletes (bib),
+sl_points INTEGER,
+gs_points INTEGER,
+sg_points INTEGER,
+total_points INT GENERATED ALWAYS AS(sl_points + gs_points + sg_points) STORED,
+season STRING REFERENCES seasons (season)
+);
+
+CREATE TABLE seasons (
+season  STRING PRIMARY KEY
+);
+
+CREATE TABLE meets (
+    bib          INTEGER REFERENCES Athletes (bib),
+    sl_time      DOUBLE,
+    gs_time      DOUBLE,
+    sg_time      DOUBLE,
+    sl_points    INTEGER,
+    gs_points    INTEGER,
+    sg_points    INTEGER,
+    total_points INT GENERATED ALWAYS AS(sl_points + gs_points + sg_points) STORED,
+    total_time   DOUBLE GENERATED ALWAYS AS(sl_time + gs_time + sg_time) STORED,
+	season string references season (season),
+	meet_id references meet_data (meed_id)
+);
+
+CREATE TABLE meet_data(
+meet_id INTEGER,
+date DATE,
+location STRING,
+season STRING REFERENCES seasons(season)
+);
+
+++----------------------Insert Commands----------------------++

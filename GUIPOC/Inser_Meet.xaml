@@ -9,7 +9,12 @@
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
 
     <Grid>
-        <StackPanel x:Name="contentPanel" Margin="120,30,0,0">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="587*"/>
+            <ColumnDefinition Width="913*"/>
+            <ColumnDefinition Width="381*"/>
+        </Grid.ColumnDefinitions>
+        <StackPanel x:Name="contentPanel" Margin="120,30,0,0" Grid.ColumnSpan="2">
             <StackPanel x:Name="userInputs" Orientation="Horizontal">
                 <StackPanel x:Name="dropBoxes" Orientation="Vertical" Margin="0,20,100,20" Width="259" HorizontalAlignment="Left">
                     <ComboBox x:Name="editOrAdd" PlaceholderText="Edit or Add a Meet" Height="51" Width="259" Margin="0,0,0,10" SelectionChanged="editOrAdd_SelectionChanged">
@@ -38,22 +43,22 @@
                 <StackPanel x:Name="editMeetInfo" Orientation="Vertical" Margin="0,20,100,20" Width="259" Visibility="Collapsed" >
 
 
-                    <TextBox x:Name="editDate" PlaceholderText="Date of Meet" Margin="0,0,0,10" Height="51" Width="259"/>
-                    <TextBox x:Name="editLocation" PlaceholderText="Location of Meet" Margin="0,0,0,10" Height="51" Width="259"/>
+                    <TextBox x:Name="editDate" PlaceholderText="Date of Meet" IsEnabled="False" Margin="0,0,0,10" Height="51" Width="259"/>
+                    <TextBox x:Name="editLocation" PlaceholderText="Location of Meet" IsEnabled="False" Margin="0,0,0,10" Height="51" Width="259"/>
 
 
                 </StackPanel>
                 <StackPanel x:Name="newMeetInfo" Orientation="Vertical" Margin="0,20,100,20" Width="259" Visibility="Collapsed">
-                    <ComboBox x:Name="meetNumber" PlaceholderText="Meet Number" Margin="0,0,0,10" Height="51" Width="259" Loading="meetNumber_Loading">
+                    <ComboBox x:Name="meetNumber" PlaceholderText="Meet Number" IsEnabled="False" Margin="0,0,0,10" Height="51" Width="259">
 
                     </ComboBox>
-                    <TextBox x:Name="adddate" PlaceholderText="Date of Meet" Margin="0,0,0,10" Height="51" Width="259"/>
-                    <TextBox x:Name="location" PlaceholderText="Location of Meet" Margin="0,0,0,10" Height="51" Width="259"/>
+                    <TextBox x:Name="adddate" PlaceholderText="Date of Meet" IsEnabled="False" Margin="0,0,0,10" Height="51" Width="259"/>
+                    <TextBox x:Name="location" PlaceholderText="Location of Meet" IsEnabled="False" Margin="0,0,0,10" Height="51" Width="259"/>
                 </StackPanel>
             </StackPanel>
 
 
         </StackPanel>
     </Grid>
-    
+
 </Page>

@@ -17,12 +17,9 @@
                 <NavigationViewItem Content="Get Race Results" x:Name="get_race_results" Tag="d"/>
                 <NavigationViewItem Content="Get Season Results" x:Name="get_season_results" Tag="e"/>
 
-
             </NavigationView.MenuItems>
             <Frame x:Name="contentFrame"/>
         </NavigationView>
-        
-
 
 
     </Grid>

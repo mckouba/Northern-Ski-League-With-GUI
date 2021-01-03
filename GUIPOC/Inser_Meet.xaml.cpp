@@ -39,6 +39,13 @@ void GUIPOC::Inser_Meet::editOrAdd_SelectionChanged(Platform::Object^ sender, Wi
 	seasonSelect->IsEnabled = "False";
 	meetSelect->IsEnabled = "False";
 
+	//hidden until season is selected
+	location->IsEnabled = "False";
+	adddate->IsEnabled = "False";
+	meetNumber->IsEnabled = "False";
+	editDate->IsEnabled = "False";
+	editLocation->IsEnabled = "False";
+
 	meetSelect->Visibility = Windows::UI::Xaml::Visibility::Collapsed;
 	editMeetInfo->Visibility = Windows::UI::Xaml::Visibility::Collapsed;
 	newMeetInfo->Visibility = Windows::UI::Xaml::Visibility::Collapsed;
@@ -60,6 +67,7 @@ void GUIPOC::Inser_Meet::editOrAdd_SelectionChanged(Platform::Object^ sender, Wi
 		applyChanges->Content = "Apply Changes";
 
 	}
+
 	else {
 		//only other option is add
 
@@ -79,9 +87,16 @@ void GUIPOC::Inser_Meet::editOrAdd_SelectionChanged(Platform::Object^ sender, Wi
 
 }
 
-
 void GUIPOC::Inser_Meet::selectSeason_Loading(Windows::UI::Xaml::FrameworkElement^ sender, Platform::Object^ args)
 {
+	//unhides buttons if season is selected
+	if (seasonSelect->SelectedItem == 0) {
+		location->IsEnabled = "True";
+		adddate->IsEnabled = "True";
+		meetNumber->IsEnabled = "True";
+		editDate->IsEnabled = "True";
+		editLocation->IsEnabled = "True";
+	}
 
 	DBLite sql;
 	sql.getData("seasons");
@@ -133,6 +148,7 @@ void GUIPOC::Inser_Meet::seasonSelect_SelectionChanged(Platform::Object^ sender,
 {
 	//remove old items
 	meetSelect->Items->Clear();
+
 	//remove the old entry if there is one
 	if (meetSelect->SelectedIndex != -1) {
 

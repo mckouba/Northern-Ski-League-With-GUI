@@ -8,7 +8,6 @@
 #include "DBLite.h"
 #include "Helpers.h"
 
-
 //TODO: figure out how to deal with people leaving and their bib being used by someone else
 //just make a new database every season?
 DBLite::DBLite() {
@@ -36,6 +35,8 @@ int athleteCallback(void* NotUsed, int argc, char** argv, char** azColName) {
 
 	std::ofstream output(dir.c_str(), std::ios::app);
 
+	/*do we want to catch some exception here? */
+	
 	if (output.is_open()) {
 		//write to csv
 		output << argv[0] << "," << argv[1] << "," << argv[2] << std::endl;
@@ -70,7 +71,7 @@ int meet_dataCallback(void* NotUsed, int argc, char** argv, char** azColName) {
 //formatted as:
 //bib, sl_time, gs_time, sg_time, sl_points, gs_points, sg_points, total_points, total_time, season, meet_id
 int meetsCallback(void* NotUsed, int argc, char** argv, char** azColName) {
-	//will print to temp file that can be read by other part of program
+//will print to temp file that can be read by other part of program
 //slow but it will do for now
 	auto location = getCurrentLocation();
 
