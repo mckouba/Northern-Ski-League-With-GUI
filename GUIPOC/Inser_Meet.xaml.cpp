@@ -90,6 +90,13 @@ void GUIPOC::Inser_Meet::selectSeason_Loading(Windows::UI::Xaml::FrameworkElemen
 
 	sql.closeDB();
 
+	//populate the meet number combobox with 1-6
+	for (int i = 1; i <= 6; i++) {
+
+		meetNumber->Items->Append(i);
+
+	}
+
 	for (auto it = seasons.cbegin(); it != seasons.cend(); ++it) {
 
 		//weird conversion via helper method found on stackoverflow
@@ -99,6 +106,21 @@ void GUIPOC::Inser_Meet::selectSeason_Loading(Windows::UI::Xaml::FrameworkElemen
 
 		//add string to the dropdown
 		seasonSelect->Items->Append(out);
+
+		//remove the existing meet numbers from the meet number combobox
+
+
+		//move this to the seasonSelecte_SelectionChanged method so it is updated when the season is changed
+		//get index of the item to be removed
+		unsigned int index;
+
+		Platform::Object^ test = std::stoi(temp.substr(5,1));
+
+		meetNumber->Items->IndexOf(test, &index);
+
+		meetNumber->Items->RemoveAt(index);
+
+
 
 	}
 
@@ -216,5 +238,17 @@ void GUIPOC::Inser_Meet::confirmChanges_Click(Platform::Object^ sender, Windows:
 	meetSelect->SelectedIndex = -1;
 	
 	applyChanges->Flyout->Hide();
+
+}
+
+
+void GUIPOC::Inser_Meet::meetNumber_Loading(Windows::UI::Xaml::FrameworkElement^ sender, Platform::Object^ args)
+{
+
+
+
+
+
+
 
 }

@@ -44,7 +44,7 @@
 
                 </StackPanel>
                 <StackPanel x:Name="newMeetInfo" Orientation="Vertical" Margin="0,20,100,20" Width="259" Visibility="Collapsed">
-                    <ComboBox x:Name="meetNumber" PlaceholderText="Meet Number" Margin="0,0,0,10" Height="51" Width="259">
+                    <ComboBox x:Name="meetNumber" PlaceholderText="Meet Number" Margin="0,0,0,10" Height="51" Width="259" Loading="meetNumber_Loading">
 
                     </ComboBox>
                     <TextBox x:Name="adddate" PlaceholderText="Date of Meet" Margin="0,0,0,10" Height="51" Width="259"/>
