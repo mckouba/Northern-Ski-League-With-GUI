@@ -32,5 +32,6 @@ namespace GUIPOC
 		void col2_SelectionChanged(Platform::Object^ sender, Windows::UI::Xaml::Controls::SelectionChangedEventArgs^ e);
 		void col3_SelectionChanged(Platform::Object^ sender, Windows::UI::Xaml::Controls::SelectionChangedEventArgs^ e);
 		void col4_SelectionChanged(Platform::Object^ sender, Windows::UI::Xaml::Controls::SelectionChangedEventArgs^ e);
+		void col1_Loading(Windows::UI::Xaml::FrameworkElement^ sender, Platform::Object^ args);
 	};
 }

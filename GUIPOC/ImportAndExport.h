@@ -12,4 +12,3 @@ std::vector<std::string> getSeasonsData();
 std::vector<std::string> getMeet_Data();
 //helper to transform std::string to Platform::String^
 Platform::String^ convertFromString(const std::string& input);
-
