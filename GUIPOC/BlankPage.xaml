@@ -101,7 +101,7 @@
                         <x:String>Time</x:String>
                         <x:String>Value of this column</x:String>
                     </ComboBox>
-                    <TextBlock x:Name="col_text" HorizontalAlignment="Center"/>
+                    <TextBlock x:Name="col4_text" HorizontalAlignment="Center"/>
 
 
                 </StackPanel>

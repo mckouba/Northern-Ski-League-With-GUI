@@ -13,6 +13,10 @@
 #include <codecvt>
 #include <string>
 #include <iostream>
+#include <vector>
+#include <fstream>
+#include <sstream>
+#include <algorithm>
 
 using namespace GUIPOC;
 
@@ -68,7 +72,7 @@ void GUIPOC::BlankPage::browse_Click(Platform::Object^ sender, Windows::UI::Xaml
 		{
 
 			if (file) {
-	
+
 				filePath->Text = file->Path;
 
 				//make the columns visible
@@ -76,6 +80,25 @@ void GUIPOC::BlankPage::browse_Click(Platform::Object^ sender, Windows::UI::Xaml
 				colSelection2->Visibility = Windows::UI::Xaml::Visibility::Visible;
 				colSelection3->Visibility = Windows::UI::Xaml::Visibility::Visible;
 				colSelection4->Visibility = Windows::UI::Xaml::Visibility::Visible;
+
+
+				//create_task(FileIO::ReadTextAsync(file)).then([this](Platform::String^ outputText)) {
+
+				//});
+
+				//inputFile;
+				
+
+
+				std::vector<std::string> out;
+
+				if (out.size() == 4) {
+					col1_text->Text = convertFromString(out.at(0));
+
+					col2_text->Text = convertFromString(out.at(1));
+					col3_text->Text = convertFromString(out.at(2));
+					col4_text->Text = convertFromString(out.at(3));
+				}
 
 
 
