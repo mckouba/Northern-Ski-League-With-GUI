@@ -319,3 +319,51 @@ std::vector<std::string> getMeet_Data() {
 	return out;
 
 }
+
+std::vector<std::string> getFirstRow(std::string path) {
+
+	//file pointer
+	std::fstream input;
+
+	//open file
+	input.open(path.c_str(), std::ios::in);
+
+	//to store input strings
+	std::vector<std::string> rows;
+	//strings to store the input
+	std::string line, word, temp;
+
+	std::vector<std::string> out;
+	line = "";
+	rows.clear();
+
+	//read row of data
+	std::getline(input, line);
+
+	//get each item and put it at the end of the output list
+	std::string t = line;
+
+	//to breakup words
+	std::stringstream s(line);
+
+	while (std::getline(s, word, ',')) {
+
+		rows.push_back(word);
+
+	}
+	if (line.compare("") != 0) {
+
+		//push back the first four csv values
+		out.push_back(rows[0]);
+		out.push_back(rows[1]);
+		out.push_back(rows[2]);
+		out.push_back(rows[3]);
+	}
+
+	input.close();
+
+	return out;
+
+
+
+}
