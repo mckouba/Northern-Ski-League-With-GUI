@@ -81,16 +81,20 @@ void GUIPOC::BlankPage::browse_Click(Platform::Object^ sender, Windows::UI::Xaml
 				colSelection3->Visibility = Windows::UI::Xaml::Visibility::Visible;
 				colSelection4->Visibility = Windows::UI::Xaml::Visibility::Visible;
 
+				int exists = 0;
 
-				//create_task(FileIO::ReadTextAsync(file)).then([this](Platform::String^ outputText)) {
-
-				//});
-
-				//inputFile;
-				
-
-
-				std::vector<std::string> out;
+				//make a string that is the location of the file
+				std::string location = (getCurrentLocation() + "\\" + make_string(std::wstring(file->DisplayName->ToString()->Data())) + make_string(std::wstring(file->FileType->ToString()->Data())));
+				//checking if the file exists
+				std::fstream checkExistance;
+				checkExistance.open(location.c_str(), std::ios::in);
+				if (!checkExistance.is_open()) {
+					//if file does not exist copy it
+					create_task(file->CopyAsync(Windows::Storage::ApplicationData::Current->LocalFolder));
+				}
+				//prevent dangling pointers
+				checkExistance.close();
+				std::vector<std::string> out = getFirstRow(location);
 
 				if (out.size() == 4) {
 					col1_text->Text = convertFromString(out.at(0));
