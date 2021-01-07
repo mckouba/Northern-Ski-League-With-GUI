@@ -16,9 +16,9 @@ namespace GUIPOC
 	{
 	public:
 		MainPage();
-
 	private:
 		
 		void nav_Item_Invoked(Windows::UI::Xaml::Controls::NavigationView^ sender, Windows::UI::Xaml::Controls::NavigationViewItemInvokedEventArgs^ args);
+
 	};
 }

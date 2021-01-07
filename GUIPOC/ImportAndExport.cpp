@@ -18,6 +18,7 @@ struct Athlete
 	float time;
 	int points;
 	std::string gender;
+	std::string season;
 
 	Athlete() {
 		bib = 0;
@@ -26,43 +27,50 @@ struct Athlete
 		time = 0.0;
 		points = 0;
 		gender = "";
+		season = "";
 	};
 
-	Athlete(int b, std::string n, std::string te, float ti, char* g) {
+	Athlete(int b, std::string n, std::string te, float ti, std::string g, std::string se) {
 		bib = b;
 		name = n;
 		team = te;
 		time = ti;
 		points = 0;
 		gender = g;
+		season = se;
+	}
+
+	void setPoints(int pts) {
+		points = pts;
 	}
 };
 
-int insertIntoDatabase(std::vector<Athlete> input, std::string type) {
+int insertIntoDatabase(std::vector<Athlete> input, std::string type, int meet_num) {
 
 	DBLite sqldb;
 	//go thorugh each athlete and put them in the athlete table
 	for (auto it = input.cbegin(); it != input.cend(); ++it) {
-
+		//insert the athlete into the athlete table
 		Athlete temp = *it;
 
-		sqldb.insertDataAthletes(std::to_string(temp.bib).c_str(), temp.name.c_str(), temp.team.c_str(), temp.gender.c_str());
-
-	}
-	if (type.compare("sl") == 0) {
-		//input results as a slalom race
+		sqldb.insertDataAthletes(std::to_string(temp.bib).c_str(), temp.name.c_str(), temp.team.c_str(), temp.gender.c_str(), temp.season.c_str());
 
 
-	}
-	else if (type.compare("gs") == 0) {
-		//input results as a gs race
+		if (type.compare("Slalom") == 0) {
+			//insert as an sl meet
+			sqldb.insertDataMeets_sl(std::to_string(temp.bib).c_str(), std::to_string(temp.time).c_str(), std::to_string(temp.points).c_str(), temp.season.c_str(), std::to_string(meet_num).c_str());
+
+		}
+		else if (type.compare("Giant Slalom") == 0) {
+			//input results as a gs race
 
 
-	}
-	else {
-		//input results as a sg race
+		}
+		else {
+			//input results as a sg race
 
 
+		}
 	}
 	sqldb.closeDB();
 	return 1;
@@ -75,7 +83,7 @@ bool compareAthletes(const Athlete& a, const Athlete& b) {
 
 //import and export data
 //takes the command line input as args
-int processData(int argc, char** argv) {
+int processData(int bibC, int nameC, int teamC, int timeC, std::string inputFile , std::string gend, std::string raceT, std::string seas, int meet_num) {
 
 	//keep track of input cols of data
 	int bibCol, nameCol, timeCol, teamCol;
@@ -83,53 +91,19 @@ int processData(int argc, char** argv) {
 	//vector to sort the athlete data
 	std::vector<Athlete> athleteVector;
 
-
-	//verify valid input
-	if (argc == 1) {
-		printf("\n Usage: SortingPOC [File Location, \"help\"] [[bib column] [time column] [name column] [team column]]");
-		return 0;
-	}
-
-	//correctly identify input
-	if (argc == 2) {
-
-		if (argv[1] == "help" || argv[1] == "Help") {
-
-			printf("\nwill implement later");
-			//TODO: implement help menu
-			return 0;
-
-		}
-
 		//default set of column numbers
 		//in csv will look like
 		//251, 37.11, matt kouba, ashwabay
-		bibCol = 0;
-		nameCol = 2;
-		timeCol = 1;
-		teamCol = 3;
-	}
-	else {
-
-		//take in user defined input columns
-		bibCol = atoi(argv[2]);
-		timeCol = atoi(argv[3]);
-		nameCol = atoi(argv[4]);
-		teamCol = atoi(argv[5]);
-	}
-
-	//get gender of the race
-	char* gender = argv[6];
-	char* raceType = argv[7];
-
-	//input file location
-	char* inputFile = argv[1];
+		bibCol = bibC;
+		nameCol = nameC;
+		timeCol = timeC;
+		teamCol = teamC;
 
 	//file pointer
 	std::fstream input;
 
 	//open file
-	input.open(inputFile, std::ios::in);
+	input.open(inputFile.c_str(), std::ios::in);
 
 	//to store input strings
 	std::vector<std::string> rows;
@@ -169,10 +143,19 @@ int processData(int argc, char** argv) {
 		}
 
 
+		if (gend.compare("Womens") == 0) {
+			//convert to "F"
+			gend = "F";
+		}
+		else if (gend.compare("Mens") == 0) {
+			//convert to M
+			gend = "M";
+		}
 
-		Athlete tempA = { stoi(rows[bibCol]), rows[nameCol].c_str(), rows[teamCol].c_str(), stof(rows[timeCol]), argv[6] };
 
+		Athlete tempA = { stoi(rows[bibCol]), rows[nameCol].c_str(), rows[teamCol].c_str(), stof(rows[timeCol]), gend, seas};
 
+		
 		athleteVector.push_back(tempA);
 
 	}
@@ -181,44 +164,33 @@ int processData(int argc, char** argv) {
 
 	//sort the athlete vector
 	std::sort(athleteVector.begin(), athleteVector.end(), compareAthletes);
-	//open output file
-	std::fstream out;
+	
+	
 
-	out.open("output.csv", std::ios::out);
-
+	//calculate points
 	int i = 1;
-	for (auto it = athleteVector.cbegin(); it != athleteVector.cend(); ++it) {
+	for (int j = 0; j < athleteVector.size(); j++) {
 
 
-		//make temp athlete object
-		Athlete temp = *it;
+
+		int maxPts = athleteVector.size() + 1;
 
 		//put corect points for dnf and dns
 		//TODO: could change later for custom dns and dnf values
-		if (temp.time == 99999.0 || temp.time == 88888.0) {
-			temp.points = athleteVector.size() + 1;
+		if (athleteVector.at(j).time == 99999.0 || athleteVector.at(j).time == 88888.0) {
+			athleteVector.at(j).setPoints(athleteVector.size() + 1);
 		}
 		else {
-			temp.points = i;
+			athleteVector.at(j).setPoints(i);
 		}
-		out << temp.bib << "," << temp.name << "," << temp.team << "," << temp.time << "," << temp.points << std::endl;
-
 		i++;
 	}
-	//close output
-	out.close();
 
 	//time to do database stuff
 	//todo: move to after user aproval
-	if (insertIntoDatabase(athleteVector, raceType) == 0) {
+	insertIntoDatabase(athleteVector, raceT, meet_num);
+	
 
-		std::cout << "Data has been successfully inserted into the database\n";
-
-	}
-	else {
-		std::cout << "Something has gone wrong while inserting into database.\n";
-		return 1;
-	}
 	return 0;
 }
 
