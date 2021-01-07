@@ -30,9 +30,9 @@ public:
 	//constructor
 	DBLite();
 	//insert data into the Athletes table
-	void insertDataAthletes(const char* bib, const char* name, const char* team, const char* gender);
+	void insertDataAthletes(const char* bib, const char* name, const char* team, const char* gender, const char* season);
 	//insert data into the meets table but only SL results
-	void insertDataMeets_sl(char* bib, char* sl_time, char* sl_points, char* season, char* meet_id);
+	void insertDataMeets_sl(const char* bib, const char* sl_time, const char* sl_points, const char* season, const char* meet_id);
 	//insert data into the meets table but only GS results
 	void insertDataMeets_gs(char* bib, char* gs_time, char* gs_points, char* season, char* meet_id);
 	//insert data into the meets table but only SG results

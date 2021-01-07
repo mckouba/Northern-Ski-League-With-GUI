@@ -9,7 +9,7 @@
 int main(int argc, char** argv) {
 	if (argv[1] != 0) {
 
-		processData(argc, argv);
+		//processData(argc, argv);
 
 	}
 	else {

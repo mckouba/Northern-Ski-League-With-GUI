@@ -1,6 +1,6 @@
 ++----------------------Table Definitions----------------------++
 
-CREATE TABLE Athletes (bib INTEGER PRIMARY KEY, name STRING, team STRING, gender char);
+CREATE TABLE Athletes (bib INTEGER PRIMARY KEY, name STRING, team STRING, gender char, season string references seasons(season));
 
 CREATE TABLE meet_team_results (
 team    string,
@@ -56,3 +56,7 @@ season STRING REFERENCES seasons(season)
 );
 
 ++----------------------Insert Commands----------------------++
+
+INSERT INTO Athletes('bib', 'name', 'team', 'gender', 'season')
+VALUES (251, 'Matt Kouba', 'Ashwabay', 'M', '2018-19');
+

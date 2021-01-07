@@ -291,6 +291,11 @@ void GUIPOC::Inser_Meet::confirmChanges_Click(Platform::Object^ sender, Windows:
 	meetSelect->SelectedIndex = -1;
 	
 	applyChanges->Flyout->Hide();
+	//reset the items that are displayed in the meet select box
+	int selectedIndex = seasonSelect->SelectedIndex;
+
+	seasonSelect->SelectedIndex = -1;
+	seasonSelect->SelectedIndex = selectedIndex;
 
 }
 
