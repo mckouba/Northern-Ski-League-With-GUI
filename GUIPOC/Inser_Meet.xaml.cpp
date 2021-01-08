@@ -127,15 +127,7 @@ void GUIPOC::Inser_Meet::selectSeason_Loading(Windows::UI::Xaml::FrameworkElemen
 		//remove the existing meet numbers from the meet number combobox
 
 
-		//move this to the seasonSelecte_SelectionChanged method so it is updated when the season is changed
-		//get index of the item to be removed
-		unsigned int index;
 
-		Platform::Object^ test = std::stoi(temp.substr(5,1));
-
-		meetNumber->Items->IndexOf(test, &index);
-
-		meetNumber->Items->RemoveAt(index);
 
 
 
@@ -183,6 +175,16 @@ void GUIPOC::Inser_Meet::seasonSelect_SelectionChanged(Platform::Object^ sender,
 
 		//add string to the dropdown
 		meetSelect->Items->Append(out);
+
+		//move this to the seasonSelecte_SelectionChanged method so it is updated when the season is changed
+		//get index of the item to be removed
+		unsigned int index;
+
+		Platform::Object^ test = std::stoi(temp.substr(6, 1));
+
+		meetNumber->Items->IndexOf(test, &index);
+
+		meetNumber->Items->RemoveAt(index);
 
 	}
 	//if there were no meets in this season say so and allow user to add a meet easily.
@@ -250,24 +252,30 @@ void GUIPOC::Inser_Meet::confirmChanges_Click(Platform::Object^ sender, Windows:
 {
 
 	DBLite db;
-	std::wstring date(editDate->Text->ToString()->Data());
-	std::wstring location(editLocation->Text->ToString()->Data());
-	int meet_id = (meetSelect->SelectedIndex + 1);
+
 	
 	
 	if (editOrAdd->SelectedIndex == 0) {
 		//this means it is an edit
+		std::wstring date(editDate->Text->ToString()->Data());
+		std::wstring location(editLocation->Text->ToString()->Data());
+		int meet_id = (meetSelect->SelectedIndex + 1);
 		db.updateDataMeet_Data(std::to_string(meet_id).c_str(), make_string(date).c_str() , make_string(location).c_str());
 	}
 	else {
 		//this means it is a new addition
-		db.insertNewDataMeet_Data(std::to_string(meet_id).c_str(), make_string(date).c_str(), make_string(location).c_str());
+		std::wstring date(adddate->Text->ToString()->Data());
+		std::wstring location(location->Text->ToString()->Data());
+		std::wstring meet_id(meetNumber->SelectedItem->ToString()->Data());
+		db.insertNewDataMeet_Data(make_string(meet_id).c_str(), make_string(date).c_str(), make_string(location).c_str());
 
 	}
 
 	db.closeDB();
 
 	meetSelect->SelectedIndex = -1;
+	adddate->Text = "";
+	location->Text = "";
 	
 	applyChanges->Flyout->Hide();
 	//reset the items that are displayed in the meet select box
