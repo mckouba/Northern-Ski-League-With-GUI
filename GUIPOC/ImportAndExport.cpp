@@ -213,8 +213,10 @@ std::vector<std::string> getSeasonsData() {
 
 	std::vector<std::string> out;
 
-	while (!input.eof()) {
+	line = " ";
 
+	while (line != "") {
+		line = "";
 		rows.clear();
 
 		//read row of data
