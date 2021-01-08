@@ -72,3 +72,10 @@ insert or ignore into meets(bib, sl_time, sl_points, season, meet_id) values(251
 
 ##to get data from the meets table based on gender
 select * from meets where bib in (select bib from Athletes where gender='M') and meet_id=1 and season='2019-20';
+
+## to get certian data from a table, will be useful when getting results for a specific meet.
+## it gets the bib, name, total points where the meet id is 1, the season is 2019-20 and the gender is Female
+SELECT meets.bib, Athletes.name, meets.total_points FROM meets INNER JOIN Athletes ON Athletes.bib=meets.bib WHERE meets.bib IN (Select bib FROM Athletes WHERE gender='F') AND meet_id=1 AND season='2019-20' ORDER BY total_points;
+
+##The above command will return data in the following format
+[bib from meets]|[name from Athletes]|[total_points from meets]
