@@ -69,6 +69,7 @@ int insertIntoDatabase(std::vector<Athlete> input, std::string type, int meet_nu
 		}
 		else {
 			//input results as a sg race
+			sqldb.insertDataMeets_sg(std::to_string(temp.bib).c_str(), std::to_string(temp.time).c_str(), std::to_string(temp.points).c_str(), temp.season.c_str(), std::to_string(meet_num).c_str());
 
 
 		}
@@ -195,6 +196,7 @@ int processData(int bibC, int nameC, int teamC, int timeC, std::string inputFile
 	insertIntoDatabase(athleteVector, raceT, meet_num);
 	
 	//delete after use to ensure no name conflicts
+	Sleep(200);
 	DeleteFileA(inputFile.c_str());
 	return 0;
 }

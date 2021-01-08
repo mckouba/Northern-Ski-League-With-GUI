@@ -194,6 +194,7 @@ void DBLite::insertDataMeets_sl(const char* bib, const char* sl_time, const char
 
 	//test it
 	rc = sqlite3_step(stmt);
+	sqlite3_finalize(stmt);
 
 	if (rc != 100) {
 		//build string 
@@ -249,6 +250,7 @@ void DBLite::insertDataMeets_gs(const char* bib, const char* gs_time, const char
 
 	//test it
 	rc = sqlite3_step(stmt);
+	sqlite3_finalize(stmt);
 
 	if (rc != 100) {
 		//build string 
@@ -304,6 +306,7 @@ void DBLite::insertDataMeets_sg(const char* bib, const char* sg_time, const char
 
 	//test it
 	rc = sqlite3_step(stmt);
+	sqlite3_finalize(stmt);
 
 	if (rc != 100) {
 		//build string 
@@ -325,11 +328,11 @@ void DBLite::insertDataMeets_sg(const char* bib, const char* sg_time, const char
 	}
 	else {
 		//build string 
-		n = snprintf(NULL, 0, "UPDATE meets SET gs_time=%s, gs_points=%s WHERE bib=%s and meet_id=%s and season='%s';", sg_time, sg_points, bib, meet_id, selectedValues[2].c_str());
+		n = snprintf(NULL, 0, "UPDATE meets SET sg_time=%s, sg_points=%s WHERE bib=%s and meet_id=%s and season='%s';", sg_time, sg_points, bib, meet_id, selectedValues[2].c_str());
 
 		query = (char*)malloc(n + 1);
 
-		n = snprintf(query, n + 1, "UPDATE meets SET gs_time=%s, gs_points=%s WHERE bib=%s and meet_id=%s and season='%s';", sg_time, sg_points, bib, meet_id, selectedValues[2].c_str());
+		n = snprintf(query, n + 1, "UPDATE meets SET sg_time=%s, sg_points=%s WHERE bib=%s and meet_id=%s and season='%s';", sg_time, sg_points, bib, meet_id, selectedValues[2].c_str());
 
 		//prepare query
 		sqlite3_prepare(db, query, strlen(query), &stmt, NULL);

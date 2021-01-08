@@ -60,3 +60,15 @@ season STRING REFERENCES seasons(season)
 INSERT INTO Athletes('bib', 'name', 'team', 'gender', 'season')
 VALUES (251, 'Matt Kouba', 'Ashwabay', 'M', '2018-19');
 
+##this will work when the conflict column is unique
+insert into meets(bib, gs_time, gs_points, season, meet_id)
+values(906, 27.9, 1, '2019-20', 1)
+ON CONFLICT(bib)
+DO UPDATE SET gs_time=27.9, gs_points=1;
+
+## to either update an existing record or if it does not exist it will add a new record of the athlete
+update meets set sl_time=27.1, sl_points=1 where bib=251 and meet_id=1 and season='2019-20';
+insert or ignore into meets(bib, sl_time, sl_points, season, meet_id) values(251, 27.1, 1, '2019-20', 1);
+
+##to get data from the meets table based on gender
+select * from meets where bib in (select bib from Athletes where gender='M') and meet_id=1 and season='2019-20';
