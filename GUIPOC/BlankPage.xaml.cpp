@@ -5,6 +5,7 @@
 
 #include "pch.h"
 #include "BlankPage.xaml.h"
+#include "MainPage.xaml.h"
 
 #include "DBLite.h"
 #include "ImportAndExport.h"
@@ -156,19 +157,22 @@ void GUIPOC::BlankPage::season_SelectionChanged(Platform::Object^ sender, Window
 	std::vector<std::string> meet_data = getMeet_Data();
 
 	sql.closeDB();
+	if (meet_data.size() != 0) {
+		for (auto it = meet_data.cbegin(); it != meet_data.cend(); ++it) {
 
-	for (auto it = meet_data.cbegin(); it != meet_data.cend(); ++it) {
+			//weird conversion via helper method found on stackoverflow
+			std::string temp = *it;
 
-		//weird conversion via helper method found on stackoverflow
-		std::string temp = *it;
+			String^ out = convertFromString(temp);
 
-		String^ out = convertFromString(temp);
+			//add string to the dropdown
+			meetSelect->Items->Append(out);
 
-		//add string to the dropdown
-		meetSelect->Items->Append(out);
-
+		}
 	}
-
+	else {
+		meetSelect->Items->Append("Please add a meet first.");
+	}
 	meetSelect->IsEnabled = "True";
 
 
@@ -181,11 +185,21 @@ void GUIPOC::BlankPage::meet_SelectionChagned(Platform::Object^ sender, Windows:
 	//convert to std::string
 	std::wstring temp(meetSelect->SelectedItem->ToString()->Data());
 	auto selected = make_string(temp);
-	//add to array of selected values
-	selectedValues[3] = selected;
+	
+	//if add a new meet is selected move to the add a new meet page with the correct itmes filled in
+	if (selected.compare("Please add a meet first.") != 0) {
+		//add to array of selected values
+		selectedValues[3] = selected;
 
-	//make the confirm visible
-	insertConfirm->Visibility = Windows::UI::Xaml::Visibility::Visible;
+		//make the confirm visible
+		insertConfirm->Visibility = Windows::UI::Xaml::Visibility::Visible;
+	}
+	else {
+		//do something but I don't know what yet
+		//eventually figure out how to navigate to the add meet page but I 
+		//don't know how to do that yet.
+	}
+
 
 }
 
@@ -230,15 +244,86 @@ void GUIPOC::BlankPage::meetSelect_Loading(Windows::UI::Xaml::FrameworkElement^ 
 }
 
 
+int GUIPOC::BlankPage::findCol(std::string input) {
+	
+	for (int i = 0; i < 5; i++) {
+		
+		std::wstring temp(prev[i]->ToString()->Data());
+		auto selected = make_string(temp);
+	
+		if (selected.compare(input) == 0) {
+			return i;
+		}
 
+	}
+
+
+}
 
 void GUIPOC::BlankPage::insertConfirm_Click(Platform::Object^ sender, Windows::UI::Xaml::RoutedEventArgs^ e)
 {
+	//insert the given data into the database
+
+	//get the col definitions
+	int bibCol, nameCol, teamCol, timeCol, meet_id;
+
+	bibCol = findCol("Bib");
+	nameCol = findCol("Name");
+	timeCol = findCol("Time");
+	teamCol = findCol("Team");
 
 
+
+
+	std::string discipline, gender, season;
+	//get the gender and race type and file path
+
+	//get substring of file path to get file name
+	std::wstring temp(filePath->Text->ToString()->Data());
+	auto selected = make_string(temp);
+	int indexOfLastS = selected.find_last_of("\\");
+	std::string fileName = selected.substr(indexOfLastS + 1);
+	std::string fileLocation = (getCurrentLocation() + "\\" + fileName);
+
+	//get the meet discipline
+	temp = disciplineSelect->SelectedItem->ToString()->Data();
+	selected = make_string(temp);
+	discipline = selected;
+	//get the gender
+	temp = genderSelect->SelectedItem->ToString()->Data();
+	selected = make_string(temp);
+	gender = selected;
+	//get the season
+	temp = seasonSelect->SelectedItem->ToString()->Data();
+	selected = make_string(temp);
+	season = selected;
+	//get the meed_id
+	temp = meetSelect->SelectedItem->ToString()->Data();
+	selected = make_string(temp);
+	int indexOfFirstC = selected.find_first_of(",");
+
+	std::string meetN = selected.substr(indexOfFirstC - 1, 1);
+	meet_id = stoi(meetN);
+	
+	
+	
+	//prev array contains the currently selected values of each column
+	//just need to compare what the value is in this array to determine
+	//what each col should be
+
+	if (processData(bibCol, nameCol, teamCol, timeCol, fileLocation, gender, discipline, season, 2) != 0) {
+	//do an alert or something that the insert has gone wrong
+	}
+	else {
+		//give an alert that it was a success
+	}
 	
 
+	insertConfirm->Flyout->Hide();
 
+	//refresh page to remove all selected items
+	//might be able to be used to also navigate to meet add to add a new meet? will mention in github issue
+	this->Frame->Navigate(Windows::UI::Xaml::Interop::TypeName(BlankPage::typeid), NULL, ref new Windows::UI::Xaml::Media::Animation::SuppressNavigationTransitionInfo());
 }
 
 
@@ -272,9 +357,18 @@ void GUIPOC::BlankPage::col1_SelectionChanged(Platform::Object^ sender, Windows:
 		col2->Items->InsertAt(0, prev[0]);
 		col3->Items->InsertAt(0, prev[0]);
 		col4->Items->InsertAt(0, prev[0]);
+		//disable the insert button
+		insertConfirm->IsEnabled = false;
+
 	}
 
 	prev[0] = col1->SelectedItem;
+	//if all columns are populated enable the submit race button
+	if (col1->Items->Size == 2 && col2->Items->Size == 2 && col3->Items->Size == 2 && col4->Items->Size == 2)
+	{
+
+		insertConfirm->IsEnabled = true;
+	}
 }
 
 void GUIPOC::BlankPage::col2_SelectionChanged(Platform::Object^ sender, Windows::UI::Xaml::Controls::SelectionChangedEventArgs^ e)
@@ -299,8 +393,17 @@ void GUIPOC::BlankPage::col2_SelectionChanged(Platform::Object^ sender, Windows:
 		col1->Items->InsertAt(0, prev[1]);
 		col3->Items->InsertAt(0, prev[1]);
 		col4->Items->InsertAt(0, prev[1]);
+		//disable the insert button
+		insertConfirm->IsEnabled = false;
+
 	}
 	prev[1] = col2->SelectedItem;
+	//if all columns are populated enable the submit race button
+	if (col1->Items->Size == 2 && col2->Items->Size == 2 && col3->Items->Size == 2 && col4->Items->Size == 2)
+	{
+
+		insertConfirm->IsEnabled = true;
+	}
 }
 
 
@@ -326,10 +429,18 @@ void GUIPOC::BlankPage::col3_SelectionChanged(Platform::Object^ sender, Windows:
 		col1->Items->InsertAt(0, prev[2]);
 		col2->Items->InsertAt(0, prev[2]);
 		col4->Items->InsertAt(0, prev[2]);
+		//disable the insert button
+		insertConfirm->IsEnabled = false;
 
 	}
 
 	prev[2] = col3->SelectedItem;
+	//if all columns are populated enable the submit race button
+	if (col1->Items->Size == 2 && col2->Items->Size == 2 && col3->Items->Size == 2 && col4->Items->Size == 2)
+	{
+
+		insertConfirm->IsEnabled = true;
+	}
 }
 
 
@@ -356,10 +467,20 @@ void GUIPOC::BlankPage::col4_SelectionChanged(Platform::Object^ sender, Windows:
 		col1->Items->InsertAt(0, prev[3]);
 		col3->Items->InsertAt(0, prev[3]);
 		col2->Items->InsertAt(0, prev[3]);
+		//disable the insert button
+		insertConfirm->IsEnabled = false;
 
 	}
 
 	prev[3] = col4->SelectedItem;
+
+	//if all columns are populated enable the submit race button
+	if (col1->Items->Size == 2 && col2->Items->Size == 2 && col3->Items->Size == 2 && col4->Items->Size == 2)
+	{
+
+		insertConfirm->IsEnabled = true;
+
+	}
 }
 
 

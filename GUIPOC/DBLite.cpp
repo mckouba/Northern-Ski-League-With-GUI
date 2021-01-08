@@ -139,17 +139,17 @@ void DBLite::checkDBErrors() {
 
 
 
-void DBLite::insertDataAthletes(const char* bib, const char* name, const char* team, const char* gender) {
+void DBLite::insertDataAthletes(const char* bib, const char* name, const char* team, const char* gender, const char* season) {
 
 	char* query;
 	int n;
 
 	//build string 
-	n = snprintf(NULL, 0, "INSERT INTO Athletes ('bib', 'name', 'team', 'gender') VALUES ( %s, '%s', '%s', '%s');", bib, name, team, gender);
+	n = snprintf(NULL, 0, "INSERT INTO Athletes ('bib', 'name', 'team', 'gender', 'season') VALUES ( %s, '%s', '%s', '%s', '%s');", bib, name, team, gender, season);
 
 	query = (char*)malloc(n + 1);
 
-	n = snprintf(query, n + 1, "INSERT INTO Athletes ('bib', 'name', 'team', 'gender') VALUES ( %s, '%s', '%s', '%s');", bib, name, team, gender);
+	n = snprintf(query, n + 1, "INSERT INTO Athletes ('bib', 'name', 'team', 'gender', 'season') VALUES ( %s, '%s', '%s', '%s', '%s');", bib, name, team, gender, season);
 
 	//prepare query
 	sqlite3_prepare(db, query, strlen(query), &stmt, NULL);
@@ -166,7 +166,30 @@ void DBLite::insertDataAthletes(const char* bib, const char* name, const char* t
 
 }
 
-void DBLite::insertDataMeets_sl(char* bib, char* sl_time, char* sl_points, char* season, char* meet_id) {}
+void DBLite::insertDataMeets_sl(const char* bib, const char* sl_time, const char* sl_points, const char* season, const char* meet_id) {
+	char* query;
+	int n;
+
+	//build string 
+	n = snprintf(NULL, 0, "INSERT INTO meets ('bib', 'sl_time', 'sl_points', 'season', 'meet_id') VALUES ( %s, %s, %s, '%s', '%s');", bib, sl_time, sl_points, selectedValues[2].c_str(), meet_id);
+
+	query = (char*)malloc(n + 1);
+
+	n = snprintf(query, n + 1, "INSERT INTO meets ('bib', 'sl_time', 'sl_points', 'season', 'meet_id') VALUES ( %s, %s, %s, '%s', '%s');", bib, sl_time, sl_points, selectedValues[2].c_str(), meet_id);
+
+	//prepare query
+	sqlite3_prepare(db, query, strlen(query), &stmt, NULL);
+
+	//test it
+	rc = sqlite3_step(stmt);
+	checkDBErrors();
+
+	//finalize usage
+	sqlite3_finalize(stmt);
+
+	//free up space
+	free(query);
+}
 void DBLite::insertDataMeets_gs(char* bib, char* gs_time, char* gs_points, char* season, char* meet_id) {}
 void DBLite::insertDataMeets_sg(char* bib, char* sg_time, char* sg_points, char* season, char* meet_id) {}
 
@@ -179,11 +202,11 @@ void DBLite::insertNewDataMeet_Data(const char* meet_id, const char* date, const
 	int n;
 
 	//build string 
-	n = snprintf(NULL, 0, "INSERT INTO meet_data ('meet_id', 'date', 'location', 'season') VALUES ( %s, '%s', '%s', %s);", meet_id, date, location, selectedValues[2]);
+	n = snprintf(NULL, 0, "INSERT INTO meet_data ('meet_id', 'date', 'location', 'season') VALUES ( %s, '%s', '%s', '%s');", meet_id, date, location, selectedValues[2].c_str());
 
 	query = (char*)malloc(n + 1);
 
-	n = snprintf(query, n+1, "INSERT INTO meet_data ('meet_id', 'date', 'location', 'season') VALUES ( %s, '%s', '%s', %s);", meet_id, date, location, selectedValues[2]);
+	n = snprintf(query, n+1, "INSERT INTO meet_data ('meet_id', 'date', 'location', 'season') VALUES ( %s, '%s', '%s', '%s');", meet_id, date, location, selectedValues[2].c_str());
 
 	//prepare query
 	sqlite3_prepare(db, query, strlen(query), &stmt, NULL);
