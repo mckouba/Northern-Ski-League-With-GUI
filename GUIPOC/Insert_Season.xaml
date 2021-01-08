@@ -9,6 +9,18 @@
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
 
     <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="587*"/>
+            <ColumnDefinition Width="913*"/>
+            <ColumnDefinition Width="381*"/>
+        </Grid.ColumnDefinitions>
+
+        <StackPanel Margin="120,50,0,0" Grid.ColumnSpan="2">
+
+                <TextBox x:Name="insertSeason"
+                     PlaceholderText="Enter a new Season"
+                     Width="300" HorizontalAlignment="Left"/>
+            </StackPanel>
 
     </Grid>
 </Page>
