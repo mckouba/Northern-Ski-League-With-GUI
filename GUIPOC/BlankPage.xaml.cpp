@@ -18,6 +18,7 @@
 #include <fstream>
 #include <sstream>
 #include <algorithm>
+#include <Windows.h>
 
 using namespace GUIPOC;
 
@@ -95,6 +96,8 @@ void GUIPOC::BlankPage::browse_Click(Platform::Object^ sender, Windows::UI::Xaml
 				}
 				//prevent dangling pointers
 				checkExistance.close();
+				//ensure file has been copied
+				Sleep(500);
 				std::vector<std::string> out = getFirstRow(location);
 
 				if (out.size() == 4) {
@@ -104,9 +107,8 @@ void GUIPOC::BlankPage::browse_Click(Platform::Object^ sender, Windows::UI::Xaml
 					col3_text->Text = convertFromString(out.at(2));
 					col4_text->Text = convertFromString(out.at(3));
 				}
-
-
-
+				
+				
 			}
 			else {
 				filePath->Text = "An error has occured";
@@ -311,7 +313,7 @@ void GUIPOC::BlankPage::insertConfirm_Click(Platform::Object^ sender, Windows::U
 	//just need to compare what the value is in this array to determine
 	//what each col should be
 
-	if (processData(bibCol, nameCol, teamCol, timeCol, fileLocation, gender, discipline, season, 2) != 0) {
+	if (processData(bibCol, nameCol, teamCol, timeCol, fileLocation, gender, discipline, season, meet_id) != 0) {
 	//do an alert or something that the insert has gone wrong
 	}
 	else {

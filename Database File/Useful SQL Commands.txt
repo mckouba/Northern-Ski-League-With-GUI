@@ -44,7 +44,7 @@ CREATE TABLE meets (
     sg_points    INTEGER,
     total_points INT GENERATED ALWAYS AS(sl_points + gs_points + sg_points) STORED,
     total_time   DOUBLE GENERATED ALWAYS AS(sl_time + gs_time + sg_time) STORED,
-	season string references season (season),
+	season string references seasons (season),
 	meet_id references meet_data (meet_id)
 );
 

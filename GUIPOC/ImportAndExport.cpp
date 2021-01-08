@@ -63,6 +63,7 @@ int insertIntoDatabase(std::vector<Athlete> input, std::string type, int meet_nu
 		}
 		else if (type.compare("Giant Slalom") == 0) {
 			//input results as a gs race
+			sqldb.insertDataMeets_gs(std::to_string(temp.bib).c_str(), std::to_string(temp.time).c_str(), std::to_string(temp.points).c_str(), temp.season.c_str(), std::to_string(meet_num).c_str());
 
 
 		}
@@ -110,8 +111,8 @@ int processData(int bibC, int nameC, int teamC, int timeC, std::string inputFile
 	//strings to store the input
 	std::string line, word, temp;
 
-
-	while (!input.eof()) {
+	line = " ";
+	while (!input.eof() && line.compare("") != 0) {
 
 		rows.clear();
 
@@ -129,34 +130,37 @@ int processData(int bibC, int nameC, int teamC, int timeC, std::string inputFile
 		//TODO: implement a filter for times greater that 60s which have minute markers
 		//checks to see if the first character in the time 'string' is a number or not
 		//used to differentiate DNF, DNS
-		if (!isdigit(rows[timeCol].at(0))) {
+		if (line.compare("") != 0) {
+			if (!isdigit(rows[timeCol].at(0))) {
 
-			if (rows[timeCol].compare("DNF") == 0) {
-				//reset the time value for this person to 99999.0 which will be DNF
-				rows[timeCol] = "99999.0";
+				if (rows[timeCol].compare("DNF") == 0) {
+					//reset the time value for this person to 99999.0 which will be DNF
+					rows[timeCol] = "99999.0";
+				}
+				else if (rows[timeCol].compare("DNS")) {
+					//reset the time value for this person to be 88888.0 which will be DNS
+					rows[timeCol] = "88888.0";
+				}
+
 			}
-			else if (rows[timeCol].compare("DNS")) {
-				//reset the time value for this person to be 88888.0 which will be DNS
-				rows[timeCol] = "88888.0";
+			if (gend.compare("Womens") == 0) {
+				//convert to "F"
+				gend = "F";
+			}
+			else if (gend.compare("Mens") == 0) {
+				//convert to M
+				gend = "M";
 			}
 
+
+			Athlete tempA = { stoi(rows[bibCol]), rows[nameCol].c_str(), rows[teamCol].c_str(), stof(rows[timeCol]), gend, seas };
+
+
+			athleteVector.push_back(tempA);
 		}
 
-
-		if (gend.compare("Womens") == 0) {
-			//convert to "F"
-			gend = "F";
-		}
-		else if (gend.compare("Mens") == 0) {
-			//convert to M
-			gend = "M";
-		}
-
-
-		Athlete tempA = { stoi(rows[bibCol]), rows[nameCol].c_str(), rows[teamCol].c_str(), stof(rows[timeCol]), gend, seas};
 
 		
-		athleteVector.push_back(tempA);
 
 	}
 
@@ -190,7 +194,8 @@ int processData(int bibC, int nameC, int teamC, int timeC, std::string inputFile
 	//todo: move to after user aproval
 	insertIntoDatabase(athleteVector, raceT, meet_num);
 	
-
+	//delete after use to ensure no name conflicts
+	DeleteFileA(inputFile.c_str());
 	return 0;
 }
 

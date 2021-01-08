@@ -34,9 +34,9 @@ public:
 	//insert data into the meets table but only SL results
 	void insertDataMeets_sl(const char* bib, const char* sl_time, const char* sl_points, const char* season, const char* meet_id);
 	//insert data into the meets table but only GS results
-	void insertDataMeets_gs(char* bib, char* gs_time, char* gs_points, char* season, char* meet_id);
+	void insertDataMeets_gs(const char* bib, const char* gs_time, const char* gs_points, const char* season, const char* meet_id);
 	//insert data into the meets table but only SG results
-	void insertDataMeets_sg(char* bib, char* sg_time, char* sg_points, char* season, char* meet_id);
+	void insertDataMeets_sg(const char* bib, const char* sg_time, const char* sg_points, const char* season, const char* meet_id);
 	//insert data into the Season table
 	void insertDataSeason(char* bib, char* sl_points, char* gs_points, char* sg_points, char* season);
 	//insert data into the Meet_data table
