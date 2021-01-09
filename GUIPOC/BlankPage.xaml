@@ -34,12 +34,12 @@
                         <x:String>Mens</x:String>
                         <x:String>Womens</x:String>
                     </ComboBox>
-                    <ComboBox x:Name="sbOrSki" PlaceholderText="Ski or Snowboard" Height="51" Width="259" Margin="0,0,0,10">
+                    <ComboBox x:Name="sbOrSki" PlaceholderText="Ski or Snowboard" Height="51" Width="259" Margin="0,0,0,10" SelectionChanged="sbOrSki_SelectionChanged">
                         <x:String>Ski</x:String>
-                        <x:String>SnowBoard</x:String>
+                        <x:String>Snowboard</x:String>
                     </ComboBox>
                     <ComboBox x:Name="seasonSelect" PlaceholderText="Season" Height="51" Width="259"
-                          SelectionChanged="season_SelectionChanged" Margin="0,0,0,10" Loading="season_Loading" >
+                          SelectionChanged="season_SelectionChanged" Margin="0,0,0,10" Loading="season_Loading" IsEnabled="False">
 
 
 

@@ -1,14 +1,14 @@
 ++----------------------Table Definitions----------------------++
 
 CREATE TABLE Athletes (
-bib INTEGER PRIMARY KEY,
+bib INTEGER,
 name STRING,
 team STRING,
 gender char,
-sl_points INTEGER,
-gs_points INTEGER,
-sg_points INTEGER,
-total_points INTEGER,
+sl_points INTEGER DEFAULT 0,
+gs_points INTEGER DEFAULT 0,
+sg_points INTEGER DEFAULT 0,
+total_points INTEGER GENERATED ALWAYS AS(sl_points + gs_points + sg_points) STORED,
 season string references seasons(season)
 );
 
@@ -27,18 +27,18 @@ sg_2_bib        integer,
 sg_3_bib        integer,
 sg_4_bib        integer,
 total_points    integer,
-season  string references season (season),
+season  string references seasons (season),
 meet_id integer references meet_data(meet_id)
 );
-
-CREATE TABLE season (
-bib     INTEGER REFERENCES Athletes (bib),
-sl_points INTEGER,
-gs_points INTEGER,
-sg_points INTEGER,
-total_points INT GENERATED ALWAYS AS(sl_points + gs_points + sg_points) STORED,
-season STRING REFERENCES seasons (season)
-);
+##Not currently needed
+#CREATE TABLE season (
+#bib     INTEGER REFERENCES Athletes (bib),
+#sl_points INTEGER,
+#gs_points INTEGER,
+#sg_points INTEGER,
+#total_points INT GENERATED ALWAYS AS(sl_points + gs_points + sg_points) STORED,
+#season STRING REFERENCES seasons (season)
+#);
 
 CREATE TABLE seasons (
 season  STRING PRIMARY KEY
@@ -89,3 +89,10 @@ SELECT meets.bib, Athletes.name, meets.total_points FROM meets INNER JOIN Athlet
 
 ##The above command will return data in the following format
 [bib from meets]|[name from Athletes]|[total_points from meets]
+
+##update the running totals for the discipline column 
+update Athletes 
+set sl_points=(SELECT sl_points from meets where meets.bib = Athletes.bib and meet_id=1 and season='2019-20')+Athletes.sl_points,
+gs_points=(SELECT gs_points from meets where meets.bib = Athletes.bib and meet_id=1 and season='2019-20')+Athletes.gs_points,
+sg_points=(SELECT sg_points from meets where meets.bib = Athletes.bib and meet_id=1 and season='2019-20')+Athletes.sg_points
+where season='2019-20';

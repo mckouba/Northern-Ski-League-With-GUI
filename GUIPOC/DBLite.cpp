@@ -152,30 +152,41 @@ void DBLite::checkDBErrors() {
 
 
 void DBLite::insertDataAthletes(const char* bib, const char* name, const char* team, const char* gender, const char* season) {
-
 	char* query;
 	int n;
 
-	//build string 
-	n = snprintf(NULL, 0, "INSERT INTO Athletes ('bib', 'name', 'team', 'gender', 'season') VALUES ( %s, '%s', '%s', '%s', '%s');", bib, name, team, gender, season);
+	//check to see if record exists
+	n = snprintf(NULL, 0, "SELECT * FROM Athletes WHERE bib=%s and season='%s';", bib, season);
 
 	query = (char*)malloc(n + 1);
 
-	n = snprintf(query, n + 1, "INSERT INTO Athletes ('bib', 'name', 'team', 'gender', 'season') VALUES ( %s, '%s', '%s', '%s', '%s');", bib, name, team, gender, season);
+	n = snprintf(query, n + 1, "SELECT * FROM Athletes WHERE bib=%s and season='%s';", bib, season);
 
-	//prepare query
 	sqlite3_prepare(db, query, strlen(query), &stmt, NULL);
 
 	//test it
 	rc = sqlite3_step(stmt);
-	checkDBErrors();
-
-	//finalize usage
 	sqlite3_finalize(stmt);
 
+	if (rc != 100) {
+		//build string 
+		n = snprintf(NULL, 0, "INSERT INTO Athletes ('bib', 'name', 'team', 'gender', 'season') VALUES ( %s, '%s', '%s', '%s', '%s');", bib, name, team, gender, season);
+
+		query = (char*)malloc(n + 1);
+
+		n = snprintf(query, n + 1, "INSERT INTO Athletes ('bib', 'name', 'team', 'gender', 'season') VALUES ( %s, '%s', '%s', '%s', '%s');", bib, name, team, gender, season);
+		
+		sqlite3_prepare(db, query, strlen(query), &stmt, NULL);
+
+		//test it
+		rc = sqlite3_step(stmt);
+		sqlite3_finalize(stmt);
+	}
+	else {
+	//do nothing as the athlete already exists
+	}
 	//free up space
 	free(query);
-
 }
 
 
@@ -471,5 +482,19 @@ void DBLite::closeDB() {
 }
 
 void DBLite::updateSeasonResults() {
+	/*
+	Basic outline for how this will go
+
+	1. use a select statement to get the top five results from a given race
+	
+	
+	*/
+
+
+
+
+
+
+
 
 }

@@ -6,6 +6,7 @@
 #include "pch.h"
 #include "BlankPage.xaml.h"
 #include "MainPage.xaml.h"
+#include "Inser_Meet.xaml.h"
 
 #include "DBLite.h"
 #include "ImportAndExport.h"
@@ -195,7 +196,7 @@ void GUIPOC::BlankPage::meet_SelectionChagned(Platform::Object^ sender, Windows:
 	auto selected = make_string(temp);
 	
 	//if add a new meet is selected move to the add a new meet page with the correct itmes filled in
-	if (selected.compare("Please add a meet first.") != 0) {
+	if (selected.compare("Please add a meet first.") != 0 && ageSelect->SelectedIndex > -1 && sbOrSki->SelectedIndex > -1) {
 		//add to array of selected values
 		selectedValues[3] = selected;
 
@@ -203,9 +204,9 @@ void GUIPOC::BlankPage::meet_SelectionChagned(Platform::Object^ sender, Windows:
 		insertConfirm->Visibility = Windows::UI::Xaml::Visibility::Visible;
 	}
 	else {
-		//do something but I don't know what yet
-		//eventually figure out how to navigate to the add meet page but I 
-		//don't know how to do that yet.
+		//navigate to add a meet page
+		this->Frame->Navigate(Windows::UI::Xaml::Interop::TypeName(Inser_Meet::typeid), NULL, ref new Windows::UI::Xaml::Media::Animation::SuppressNavigationTransitionInfo());
+
 	}
 
 
@@ -222,30 +223,7 @@ void GUIPOC::BlankPage::test(Windows::UI::Xaml::FrameworkElement^ sender, Platfo
 
 void GUIPOC::BlankPage::season_Loading(Windows::UI::Xaml::FrameworkElement^ sender, Platform::Object^ args)
 {
-		DBLite sql;
-		if (sbOrSki->SelectedIndex == 0) {
-			sql.connect("Ski");
-		}
-		else {
-			sql.connect("SB");
-		}
-		sql.getData("seasons");
-
-		std::vector<std::string> seasons = getSeasonsData();
-
-		sql.closeDB();
-
-		for (auto it = seasons.cbegin(); it != seasons.cend(); ++it) {
-
-			//weird conversion via helper method found on stackoverflow
-			std::string temp = *it;
-
-			String^ out = convertFromString(temp);
-
-			//add string to the dropdown
-			seasonSelect->Items->Append(out);
-
-		}
+		
 
 }
 
@@ -325,7 +303,7 @@ void GUIPOC::BlankPage::insertConfirm_Click(Platform::Object^ sender, Windows::U
 	//just need to compare what the value is in this array to determine
 	//what each col should be
 
-	if (processData(bibCol, nameCol, teamCol, timeCol, fileLocation, gender, discipline, season, meet_id) != 0) {
+	if (processData(bibCol, nameCol, teamCol, timeCol, fileLocation, gender, discipline, season, meet_id, ((sbOrSki->SelectedIndex == 0) ? 1 : 0)) != 0) {
 	//do an alert or something that the insert has gone wrong
 	}
 	else {
@@ -521,5 +499,39 @@ void GUIPOC::BlankPage::ageSelect_SelectionChanged(Platform::Object^ sender, Win
 
 
 
+
+}
+
+
+void GUIPOC::BlankPage::sbOrSki_SelectionChanged(Platform::Object^ sender, Windows::UI::Xaml::Controls::SelectionChangedEventArgs^ e)
+{
+	//populate the season select after clearing them out
+	seasonSelect->Items->Clear();
+	DBLite sql;
+	if (sbOrSki->SelectedIndex == 0) {
+		sql.connect("Ski");
+	}
+	else {
+		sql.connect("SB");
+	}
+	sql.getData("seasons");
+
+	std::vector<std::string> seasons = getSeasonsData();
+
+	sql.closeDB();
+
+	for (auto it = seasons.cbegin(); it != seasons.cend(); ++it) {
+
+		//weird conversion via helper method found on stackoverflow
+		std::string temp = *it;
+
+		String^ out = convertFromString(temp);
+
+		//add string to the dropdown
+		seasonSelect->Items->Append(out);
+
+	}
+	//enable the season select button
+	seasonSelect->IsEnabled = true;
 
 }

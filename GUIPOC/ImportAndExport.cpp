@@ -45,9 +45,15 @@ struct Athlete
 	}
 };
 
-int insertIntoDatabase(std::vector<Athlete> input, std::string type, int meet_num) {
+int insertIntoDatabase(std::vector<Athlete> input, std::string type, int meet_num, int skiOSb) {
 
 	DBLite sqldb;
+	if (skiOSb == 1) {
+		sqldb.connect("Ski");
+	}
+	else {
+		sqldb.connect("SB");
+	}
 	//go thorugh each athlete and put them in the athlete table
 	for (auto it = input.cbegin(); it != input.cend(); ++it) {
 		//insert the athlete into the athlete table
@@ -85,7 +91,7 @@ bool compareAthletes(const Athlete& a, const Athlete& b) {
 
 //import and export data
 //takes the command line input as args
-int processData(int bibC, int nameC, int teamC, int timeC, std::string inputFile , std::string gend, std::string raceT, std::string seas, int meet_num) {
+int processData(int bibC, int nameC, int teamC, int timeC, std::string inputFile , std::string gend, std::string raceT, std::string seas, int meet_num, int skiOSb) {
 
 	//keep track of input cols of data
 	int bibCol, nameCol, timeCol, teamCol;
@@ -193,7 +199,7 @@ int processData(int bibC, int nameC, int teamC, int timeC, std::string inputFile
 
 	//time to do database stuff
 	//todo: move to after user aproval
-	insertIntoDatabase(athleteVector, raceT, meet_num);
+	insertIntoDatabase(athleteVector, raceT, meet_num, skiOSb);
 	
 	//delete after use to ensure no name conflicts
 	Sleep(200);
