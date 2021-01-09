@@ -12,15 +12,27 @@
 //just make a new database every season?
 DBLite::DBLite() {
 
+}
+
+void DBLite::connect(std::string type) {
+
+	//open the correct database
 	auto location = getCurrentLocation();
-
-	std::string dbLocation = location + "\\test.db";
-
+	std::string dbLocation;
+	if (type.compare("Ski") == 0) {
+		dbLocation = location + "\\ski.db";
+	}
+	else {
+		dbLocation = location + "\\snowboard.db";
+	}
 	rc = sqlite3_open_v2(dbLocation.c_str(), &db, SQLITE_OPEN_CREATE | SQLITE_OPEN_READWRITE, NULL);
 
 	checkDBErrors();
-}
 
+
+
+
+}
 
 //callback functions
 //oputput will be in athlete_temp
@@ -458,3 +470,6 @@ void DBLite::closeDB() {
 	sqlite3_close(db);
 }
 
+void DBLite::updateSeasonResults() {
+
+}

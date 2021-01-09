@@ -96,11 +96,13 @@ void GUIPOC::Inser_Meet::editOrAdd_SelectionChanged(Platform::Object^ sender, Wi
 
 	meetSelect->SelectedIndex = -1;
 
-}
-
-void GUIPOC::Inser_Meet::selectSeason_Loading(Windows::UI::Xaml::FrameworkElement^ sender, Platform::Object^ args)
-{
 	DBLite sql;
+	if (sbOrSki->SelectedIndex == 0) {
+		sql.connect("Ski");
+	}
+	else {
+		sql.connect("SB");
+	}
 	sql.getData("seasons");
 
 	std::vector<std::string> seasons = getSeasonsData();
@@ -113,7 +115,7 @@ void GUIPOC::Inser_Meet::selectSeason_Loading(Windows::UI::Xaml::FrameworkElemen
 		meetNumber->Items->Append(i);
 
 	}
-
+	seasonSelect->Items->Clear();
 	for (auto it = seasons.cbegin(); it != seasons.cend(); ++it) {
 
 		//weird conversion via helper method found on stackoverflow
@@ -132,6 +134,12 @@ void GUIPOC::Inser_Meet::selectSeason_Loading(Windows::UI::Xaml::FrameworkElemen
 
 
 	}
+
+}
+
+void GUIPOC::Inser_Meet::selectSeason_Loading(Windows::UI::Xaml::FrameworkElement^ sender, Platform::Object^ args)
+{
+	
 
 
 
@@ -160,6 +168,12 @@ void GUIPOC::Inser_Meet::seasonSelect_SelectionChanged(Platform::Object^ sender,
 	selectedValues[2] = selected;
 
 	DBLite sql;
+	if (sbOrSki->SelectedIndex == 0) {
+		sql.connect("Ski");
+	}
+	else {
+		sql.connect("SB");
+	}
 	sql.getData("meet_data");
 
 	std::vector<std::string> meet_data = getMeet_Data();
@@ -252,6 +266,12 @@ void GUIPOC::Inser_Meet::confirmChanges_Click(Platform::Object^ sender, Windows:
 {
 
 	DBLite db;
+	if (sbOrSki->SelectedIndex == 0) {
+		db.connect("Ski");
+	}
+	else {
+		db.connect("SB");
+	}
 
 	
 	
@@ -295,5 +315,28 @@ void GUIPOC::Inser_Meet::meetNumber_Loading(Windows::UI::Xaml::FrameworkElement^
 
 
 
+
+}
+
+
+void GUIPOC::Inser_Meet::sbOrSki_SelectionChanged(Platform::Object^ sender, Windows::UI::Xaml::Controls::SelectionChangedEventArgs^ e)
+{
+
+	
+
+	if (seasonSelect->IsEnabled == false) {
+		editOrAdd->IsEnabled = true;
+		editOrAdd->SelectedIndex = -1;
+	}
+	else {
+		seasonSelect->SelectedIndex = -1;
+		seasonSelect->Items->Clear();
+		editOrAdd->SelectedIndex = -1;
+		meetNumber->IsEnabled = false;
+		editDate->IsEnabled = false;
+		editLocation->IsEnabled = false;
+		meetSelect->IsEnabled = false;
+		
+	}
 
 }

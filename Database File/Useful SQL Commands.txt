@@ -1,6 +1,16 @@
 ++----------------------Table Definitions----------------------++
 
-CREATE TABLE Athletes (bib INTEGER PRIMARY KEY, name STRING, team STRING, gender char, season string references seasons(season));
+CREATE TABLE Athletes (
+bib INTEGER PRIMARY KEY,
+name STRING,
+team STRING,
+gender char,
+sl_points INTEGER,
+gs_points INTEGER,
+sg_points INTEGER,
+total_points INTEGER,
+season string references seasons(season)
+);
 
 CREATE TABLE meet_team_results (
 team    string,

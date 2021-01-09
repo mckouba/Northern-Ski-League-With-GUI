@@ -29,6 +29,8 @@ public:
 
 	//constructor
 	DBLite();
+	//connect to correct database
+	void connect(std::string type);
 	//insert data into the Athletes table
 	void insertDataAthletes(const char* bib, const char* name, const char* team, const char* gender, const char* season);
 	//insert data into the meets table but only SL results
@@ -43,6 +45,8 @@ public:
 	void insertNewDataMeet_Data(const char* meet_id, const char* date, const char* location);
 	//update a meet's information	
 	void updateDataMeet_Data(const char* meet_id, const char* date, const char* location);
+	//function to generate the season data and update the season table
+	void updateSeasonResults();
 	//get data from the requested table
 	void getData(const char* table);
 	//close the open database

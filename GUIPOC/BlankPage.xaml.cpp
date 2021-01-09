@@ -154,6 +154,12 @@ void GUIPOC::BlankPage::season_SelectionChanged(Platform::Object^ sender, Window
 	selectedValues[2] = selected;
 
 	DBLite sql;
+	if (sbOrSki->SelectedIndex == 0) {
+		sql.connect("Ski");
+	}
+	else {
+		sql.connect("SB");
+	}
 	sql.getData("meet_data");
 
 	std::vector<std::string> meet_data = getMeet_Data();
@@ -217,6 +223,12 @@ void GUIPOC::BlankPage::test(Windows::UI::Xaml::FrameworkElement^ sender, Platfo
 void GUIPOC::BlankPage::season_Loading(Windows::UI::Xaml::FrameworkElement^ sender, Platform::Object^ args)
 {
 		DBLite sql;
+		if (sbOrSki->SelectedIndex == 0) {
+			sql.connect("Ski");
+		}
+		else {
+			sql.connect("SB");
+		}
 		sql.getData("seasons");
 
 		std::vector<std::string> seasons = getSeasonsData();
@@ -497,5 +509,17 @@ void GUIPOC::BlankPage::col1_Loading(Windows::UI::Xaml::FrameworkElement^ sender
 	
 	//this is the 'value of this column' object
 	prev[4] = col1->Items->GetAt(col1->Items->Size - 1);
+
+}
+
+
+void GUIPOC::BlankPage::ageSelect_SelectionChanged(Platform::Object^ sender, Windows::UI::Xaml::Controls::SelectionChangedEventArgs^ e)
+{
+
+
+
+
+
+
 
 }

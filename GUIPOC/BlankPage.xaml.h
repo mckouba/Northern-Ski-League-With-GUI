@@ -34,5 +34,6 @@ namespace GUIPOC
 		void col4_SelectionChanged(Platform::Object^ sender, Windows::UI::Xaml::Controls::SelectionChangedEventArgs^ e);
 		void col1_Loading(Windows::UI::Xaml::FrameworkElement^ sender, Platform::Object^ args);
 		int GUIPOC::BlankPage::findCol(std::string input);
+		void ageSelect_SelectionChanged(Platform::Object^ sender, Windows::UI::Xaml::Controls::SelectionChangedEventArgs^ e);
 	};
 }
