@@ -254,7 +254,6 @@ std::vector<std::string> getSeasonsData() {
 	return out;
 }
 
-
 std::vector<std::string> getMeet_Data() {
 
 	auto location = getCurrentLocation();

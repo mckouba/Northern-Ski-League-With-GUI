@@ -481,19 +481,48 @@ void DBLite::closeDB() {
 	sqlite3_close(db);
 }
 
-void DBLite::updateSeasonResults() {
-	/*
-	Basic outline for how this will go
+void DBLite::updateSeasonResults(std::string season, int numOfMeets) {
 
-	1. use a select statement to get the top five results from a given race
-	
-	
-	*/
+	//ensure that the number of meets is correct for each athlete for the season
+	verifySeasonResults(season, numOfMeets);
 
 
+	//time to execute sql command to calculate results
+
+	char* query;
+	int n;
+
+	//craft sql statement
+	n = snprintf(NULL, 0, " UPDATE Athletes SET sl_points = (SELECT SUM(sl_points) OVER(ORDER BY sl_points ROWS BETWEEN CURRENT ROW AND %s FOLLOWING) FROM meets WHERE meets.bib = Athletes.bib AND meets.season = Athletes.season LIMIT 1), gs_points = (SELECT SUM(gs_points) OVER(ORDER BY gs_points ROWS BETWEEN CURRENT ROW AND %s FOLLOWING) FROM meets WHERE meets.bib = Athletes.bib AND meets.season = Athletes.season LIMIT 1), sg_points = (SELECT SUM(sg_points) OVER(ORDER BY sg_points ROWS BETWEEN CURRENT ROW AND %s FOLLOWING) FROM meets WHERE meets.bib = Athletes.bib AND meets.season = Athletes.season LIMIT 1) WHERE season = '%s'; ", numOfMeets, numOfMeets, numOfMeets, selectedValues[2].c_str());
+
+	query = (char*)malloc(n + 1);
+
+	n = snprintf(query, n + 1, " UPDATE Athletes SET sl_points = (SELECT SUM(sl_points) OVER(ORDER BY sl_points ROWS BETWEEN CURRENT ROW AND %s FOLLOWING) FROM meets WHERE meets.bib = Athletes.bib AND meets.season = Athletes.season LIMIT 1), gs_points = (SELECT SUM(gs_points) OVER(ORDER BY gs_points ROWS BETWEEN CURRENT ROW AND %s FOLLOWING) FROM meets WHERE meets.bib = Athletes.bib AND meets.season = Athletes.season LIMIT 1), sg_points = (SELECT SUM(sg_points) OVER(ORDER BY sg_points ROWS BETWEEN CURRENT ROW AND %s FOLLOWING) FROM meets WHERE meets.bib = Athletes.bib AND meets.season = Athletes.season LIMIT 1) WHERE season = '%s'; ", numOfMeets, numOfMeets, numOfMeets, selectedValues[2].c_str());
+
+	sqlite3_prepare(db, query, strlen(query), &stmt, NULL);
+
+	//test it
+	rc = sqlite3_step(stmt);
+	sqlite3_finalize(stmt);
+
+
+	//free up space
+	free(query);
+}
+
+void DBLite::verifySeasonResults(std::string season, int numOfMeets) {
 
 
 
+
+
+
+}
+
+void DBLite::insertDNSData(std::string season, int bib, int meetNum) {
+
+	//get the number of athletes at that meet for the given gender
+	//gender can be gotten with a sql query
 
 
 
