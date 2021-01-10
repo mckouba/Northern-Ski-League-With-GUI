@@ -203,7 +203,7 @@ void GUIPOC::BlankPage::meet_SelectionChagned(Platform::Object^ sender, Windows:
 		//make the confirm visible
 		insertConfirm->Visibility = Windows::UI::Xaml::Visibility::Visible;
 	}
-	else {
+	else if(selected.compare("Please add a meet first.") == 0) {
 		//navigate to add a meet page
 		this->Frame->Navigate(Windows::UI::Xaml::Interop::TypeName(Inser_Meet::typeid), NULL, ref new Windows::UI::Xaml::Media::Animation::SuppressNavigationTransitionInfo());
 

@@ -144,9 +144,12 @@ int processData(int bibC, int nameC, int teamC, int timeC, std::string inputFile
 					//reset the time value for this person to 99999.0 which will be DNF
 					rows[timeCol] = "99999.0";
 				}
-				else if (rows[timeCol].compare("DNS")) {
+				else if (rows[timeCol].compare("DNS") == 0) {
 					//reset the time value for this person to be 88888.0 which will be DNS
 					rows[timeCol] = "88888.0";
+				}
+				else if (rows[timeCol].compare("DQ") == 0) {
+					rows[timeCol] = "77777.0";
 				}
 
 			}

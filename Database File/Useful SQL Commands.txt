@@ -91,8 +91,47 @@ SELECT meets.bib, Athletes.name, meets.total_points FROM meets INNER JOIN Athlet
 [bib from meets]|[name from Athletes]|[total_points from meets]
 
 ##update the running totals for the discipline column 
+##look into if I can make it dynamically take the points from every meet so something like meet_id=(SELECT meet_id from meet_data) or something like that;
 update Athletes 
 set sl_points=(SELECT sl_points from meets where meets.bib = Athletes.bib and meet_id=1 and season='2019-20')+Athletes.sl_points,
 gs_points=(SELECT gs_points from meets where meets.bib = Athletes.bib and meet_id=1 and season='2019-20')+Athletes.gs_points,
 sg_points=(SELECT sg_points from meets where meets.bib = Athletes.bib and meet_id=1 and season='2019-20')+Athletes.sg_points
 where season='2019-20';
+
+##this is an update command to get the sum of ALL of the meet points from a given season for the bib 251
+update Athletes set sl_points=(SELECT sum(sl_points) from meets where meets.bib = Athletes.bib and season='2019-20') where bib=251;
+
+##This is the command to use to update the point totals for a given number of meets.
+##This query updates the total points of sl_points, gs_points, and sg_points by getting the sum of the given number of meets in order of least to greatest in a given season
+UPDATE Athletes
+SET sl_points=(
+			   SELECT SUM(sl_points) OVER( 
+										  ORDER BY sl_points 
+										  ROWS BETWEEN CURRENT ROW AND [1,2,3,4,...] FOLLOWING
+										  )
+				FROM meets 
+				WHERE meets.bib=Athletes.bib
+				AND season=['2019-20, '2020-21', ...]
+				LIMIT 1
+				),
+SET gs_points=(
+			   SELECT SUM(gs_points) OVER( 
+										  ORDER BY gs_points 
+										  ROWS BETWEEN CURRENT ROW AND [1,2,3,4,...] FOLLOWING
+										  )
+				FROM meets 
+				WHERE meets.bib=Athletes.bib
+				AND season=['2019-20, '2020-21', ...]
+				LIMIT 1
+				)
+SET sg_points=(
+			   SELECT SUM(sg_points) OVER( 
+										  ORDER BY sg_points 
+										  ROWS BETWEEN CURRENT ROW AND [1,2,3,4,...] FOLLOWING
+										  )
+				FROM meets 
+				WHERE meets.bib=Athletes.bib
+				AND season=['2019-20, '2020-21', ...]
+				LIMIT 1
+				)
+WHERE season=['2019-20, '2020-21', ...];
