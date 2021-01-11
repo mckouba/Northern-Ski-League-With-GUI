@@ -181,6 +181,7 @@ void DBLite::insertDataAthletes(const char* bib, const char* name, const char* t
 		//test it
 		rc = sqlite3_step(stmt);
 		sqlite3_finalize(stmt);
+
 	}
 	else {
 	//do nothing as the athlete already exists
