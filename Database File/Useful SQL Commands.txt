@@ -1,6 +1,16 @@
 ++----------------------Table Definitions----------------------++
 
-CREATE TABLE Athletes (bib INTEGER PRIMARY KEY, name STRING, team STRING, gender char, season string references seasons(season));
+CREATE TABLE Athletes (
+bib INTEGER,
+name STRING,
+team STRING,
+gender char,
+sl_points INTEGER DEFAULT 0,
+gs_points INTEGER DEFAULT 0,
+sg_points INTEGER DEFAULT 0,
+total_points INTEGER GENERATED ALWAYS AS(sl_points + gs_points + sg_points) STORED,
+season string references seasons(season)
+);
 
 CREATE TABLE meet_team_results (
 team    string,
@@ -17,23 +27,23 @@ sg_2_bib        integer,
 sg_3_bib        integer,
 sg_4_bib        integer,
 total_points    integer,
-season  string references season (season),
+season  string references seasons (season),
 meet_id integer references meet_data(meet_id)
 );
-
-CREATE TABLE season (
-bib     INTEGER REFERENCES Athletes (bib),
-sl_points INTEGER,
-gs_points INTEGER,
-sg_points INTEGER,
-total_points INT GENERATED ALWAYS AS(sl_points + gs_points + sg_points) STORED,
-season STRING REFERENCES seasons (season)
-);
+##Not currently needed
+#CREATE TABLE season (
+#bib     INTEGER REFERENCES Athletes (bib),
+#sl_points INTEGER,
+#gs_points INTEGER,
+#sg_points INTEGER,
+#total_points INT GENERATED ALWAYS AS(sl_points + gs_points + sg_points) STORED,
+#season STRING REFERENCES seasons (season)
+#);
 
 CREATE TABLE seasons (
 season  STRING PRIMARY KEY
 );
-
+##age group is not implemented yet, will be used for varsity, jv and middle school designation
 CREATE TABLE meets (
     bib          INTEGER REFERENCES Athletes (bib),
     sl_time      DOUBLE,
@@ -44,7 +54,8 @@ CREATE TABLE meets (
     sg_points    INTEGER,
     total_points INT GENERATED ALWAYS AS(sl_points + gs_points + sg_points) STORED,
     total_time   DOUBLE GENERATED ALWAYS AS(sl_time + gs_time + sg_time) STORED,
-	season string references season (season),
+	##age_group	STRING,
+	season string references seasons (season),
 	meet_id references meet_data (meet_id)
 );
 
@@ -55,8 +66,152 @@ location STRING,
 season STRING REFERENCES seasons(season)
 );
 
-++----------------------Insert Commands----------------------++
+++----------------------View Generating Commands----------------------++
+
+##view that can easily get meet results 
+CREATE VIEW meet_results_view 
+AS SELECT Athletes.gender, Athletes.bib, Athletes.name, Athletes.team, Athletes.season, meets.sl_time, meets.sl_points, meets.gs_time, meets.gs_points, meets.sg_time, meets.sg_points, meets.total_points, meets.total_time, meet_id 
+FROM Athletes 
+INNER JOIN meets ON meets.bib=Athletes.bib
+ORDER BY meets.total_points;
+
+##select statement for above view
+##its also possible to use a different select to get different data
+ select * from meet_results_view where meet_id=[1,2,3,4,5,....] and gender=['M','F'];
+
+
+++----------------------Commands----------------------++
 
 INSERT INTO Athletes('bib', 'name', 'team', 'gender', 'season')
 VALUES (251, 'Matt Kouba', 'Ashwabay', 'M', '2018-19');
 
+##this will work when the conflict column is unique
+insert into meets(bib, gs_time, gs_points, season, meet_id)
+values(906, 27.9, 1, '2019-20', 1)
+ON CONFLICT(bib)
+DO UPDATE SET gs_time=27.9, gs_points=1;
+
+## to either update an existing record or if it does not exist it will add a new record of the athlete
+update meets set sl_time=27.1, sl_points=1 where bib=251 and meet_id=1 and season='2019-20';
+insert or ignore into meets(bib, sl_time, sl_points, season, meet_id) values(251, 27.1, 1, '2019-20', 1);
+
+##to get data from the meets table based on gender
+select * from meets where bib in (select bib from Athletes where gender='M') and meet_id=1 and season='2019-20';
+
+##command that will return results from a given meet determined by gender
+SELECT * FROM meets WHERE meet_id=[1,2,3,4,....] AND (SELECT gender FROM Athletes WHERE Athletes.bib=meets.bib)=['M','F,'] AND season=['2019-20','2020-21'];
+
+
+## to get certian data from a table, will be useful when getting results for a specific meet.
+## it gets the bib, name, total points where the meet id is 1, the season is 2019-20 and the gender is Female
+SELECT meets.bib, Athletes.name, meets.total_points FROM meets INNER JOIN Athletes ON Athletes.bib=meets.bib WHERE meets.bib IN (Select bib FROM Athletes WHERE gender='F') AND meet_id=1 AND season='2019-20' ORDER BY total_points;
+
+##The above command will return data in the following format
+[bib from meets]|[name from Athletes]|[total_points from meets]
+
+##To get the number of people at a meet depending on gender
+select count(*) from meets where meet_id=1 and (SELECT gender from athletes where Athletes.bib=meets.bib)='M' and season='2019-20';
+
+#to get the bib of people that were not at a given meet
+select bib from Athletes where not exists(select 1 from meets where meet_id=[1,2,3,4,....] and meets.bib=Athletes.bib) order by bib;
+
+##update the running totals for the discipline column 
+##look into if I can make it dynamically take the points from every meet so something like meet_id=(SELECT meet_id from meet_data) or something like that;
+update Athletes 
+set sl_points=(SELECT sl_points from meets where meets.bib = Athletes.bib and meet_id=1 and season='2019-20')+Athletes.sl_points,
+gs_points=(SELECT gs_points from meets where meets.bib = Athletes.bib and meet_id=1 and season='2019-20')+Athletes.gs_points,
+sg_points=(SELECT sg_points from meets where meets.bib = Athletes.bib and meet_id=1 and season='2019-20')+Athletes.sg_points
+where season='2019-20';
+
+##this is an update command to get the sum of ALL of the meet points from a given season for the bib 251
+##NEED TO MAKE SURE THIS WORKS FOR WHEN A PERSON DOES NOT SHOW UP TO A MEET, MAY NEED TO ADD SOME CHECKING IN THE APP CODE
+update Athletes set sl_points=(SELECT sum(sl_points) from meets where meets.bib = Athletes.bib and meets.season=Athletes.season),
+gs_points=(SELECT sum(gs_points) from meets where meets.bib = Athletes.bib and meets.season=Athletes.season),
+sg_points=(SELECT sum(sg_points) from meets where meets.bib = Athletes.bib and meets.season=Athletes.season)
+where season='2019-20';
+
+##This is the command to use to update the point totals for a given number of meets.
+##This query updates the total points of sl_points, gs_points, and sg_points by getting the sum of the given number of meets in order of least to greatest in a given season
+##number of meets is determined by current row plus number of rows
+## so this means that for the top 3 meets you need current row to 2 following
+UPDATE Athletes
+SET sl_points=(
+			   SELECT SUM(sl_points) OVER( 
+										  ORDER BY sl_points 
+										  ROWS BETWEEN CURRENT ROW AND [1,2,3,4,...] FOLLOWING
+										  )
+				FROM meets 
+				WHERE meets.bib=Athletes.bib
+				AND meets.season=Athletes.season
+				LIMIT 1
+				),
+gs_points=(
+			   SELECT SUM(gs_points) OVER( 
+										  ORDER BY gs_points 
+										  ROWS BETWEEN CURRENT ROW AND [1,2,3,4,...] FOLLOWING
+										  )
+				FROM meets 
+				WHERE meets.bib=Athletes.bib
+				AND meets.season=Athletes.season
+				LIMIT 1
+				),
+sg_points=(
+			   SELECT SUM(sg_points) OVER( 
+										  ORDER BY sg_points 
+										  ROWS BETWEEN CURRENT ROW AND [1,2,3,4,...] FOLLOWING
+										  )
+				FROM meets 
+				WHERE meets.bib=Athletes.bib
+				AND meets.season=Athletes.season
+				LIMIT 1
+				)
+WHERE season=['2019-20, '2020-21', ...];
+
+UPDATE Athletes
+SET sl_points=(SELECT SUM(sl_points) OVER(ORDER BY sl_points ROWS BETWEEN CURRENT ROW AND 2 FOLLOWING) FROM meets WHERE meets.bib=Athletes.bib AND meets.season=Athletes.season LIMIT 1),
+gs_points=(SELECT SUM(gs_points) OVER(ORDER BY gs_points ROWS BETWEEN CURRENT ROW AND 2 FOLLOWING) FROM meets WHERE meets.bib=Athletes.bib AND meets.season=Athletes.season LIMIT 1),
+sg_points=(SELECT SUM(sg_points) OVER(ORDER BY sg_points ROWS BETWEEN CURRENT ROW AND 2 FOLLOWING) FROM meets WHERE meets.bib=Athletes.bib AND meets.season=Athletes.season LIMIT 1)
+WHERE season='2019-20';
+
+##Find the number of meets a racer has attended
+SELECT COUNT(meet_id) from meets where bib=[bib of racer] and season=['2019-20, '2020-21', ...];
+
+##Get the bib of athletes that did not attend a given meet
+select bib from Athletes where not exists(Select meets.bib from meets where  meets.bib = Athletes.bib and meet_id=[1,2,3,4,5,....]);
+
+
+++----------------------Prototyping Statements----------------------++
+##this statement correctly calculates sl points for a athlete that has misseed a meet but has attended others
+UPDATE Athletes
+SET sl_points=(
+			   SELECT CASE
+							WHEN NOT EXISTS(
+											SELECT 1 FROM meets where meets.bib=AThletes.bib and meet_id=2)
+						THEN 
+							((SELECT COUNT(*) 
+								FROM meets 
+								WHERE meets.season=Athletes.season
+								AND meets.meet_id=2
+								AND (SELECT gender
+									 FROM Athletes
+									 WHERE Athletes.bib=meets.bib)='M') + 		
+									(SUM(sl_points) OVER( 
+										ORDER BY sl_points 
+										ROWS BETWEEN CURRENT ROW AND 4 FOLLOWING
+										)
+									) + 1
+							)
+						ELSE
+							(SUM(sl_points) OVER( 
+								ORDER BY sl_points 
+								ROWS BETWEEN CURRENT ROW AND 4 FOLLOWING
+								)
+							)
+						END						
+				FROM meets 
+				WHERE meets.bib=Athletes.bib
+				AND meets.season=Athletes.season
+				LIMIT 1
+				)
+WHERE bib=527
+AND season='2019-20';

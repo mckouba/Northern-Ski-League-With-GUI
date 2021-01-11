@@ -42,6 +42,9 @@ void App::OnLaunched(Windows::ApplicationModel::Activation::LaunchActivatedEvent
 {
     //just to create the testdb for new people pulling from the github page
     DBLite db;
+    db.connect("Ski");
+    db.closeDB();
+    db.connect("SB");
     db.closeDB();
 
 

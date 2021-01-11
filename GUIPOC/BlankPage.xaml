@@ -17,7 +17,13 @@
             </StackPanel>
             <StackPanel x:Name="dataAndArrributes" Orientation="Horizontal">
                 <StackPanel x:Name="raceArrtibutes" Orientation="Vertical" Margin="0,20,100,20" Width="259" HorizontalAlignment="Left">
-                    <ComboBox x:Name="disciplineSelect" PlaceholderText="Type of Race" Height="51" Width="259"
+                    <ComboBox x:Name="ageSelect" PlaceholderText="Race Category" Height="51" Width="259 "
+                              Margin="0,0,0,10" SelectionChanged="ageSelect_SelectionChanged">
+                        <x:String>Varsity</x:String>
+                        <x:String>Junior Varsity</x:String>
+                        <x:String>Middle School</x:String>
+                    </ComboBox>
+                    <ComboBox x:Name="disciplineSelect" PlaceholderText="Race Type" Height="51" Width="259"
                       SelectionChanged="raceAttribute_SelectionChanged" Margin="0, 0, 0, 10" Loading="test">
                         <x:String>Slalom</x:String>
                         <x:String>Giant Slalom</x:String>
@@ -28,8 +34,12 @@
                         <x:String>Mens</x:String>
                         <x:String>Womens</x:String>
                     </ComboBox>
+                    <ComboBox x:Name="sbOrSki" PlaceholderText="Ski or Snowboard" Height="51" Width="259" Margin="0,0,0,10" SelectionChanged="sbOrSki_SelectionChanged">
+                        <x:String>Ski</x:String>
+                        <x:String>Snowboard</x:String>
+                    </ComboBox>
                     <ComboBox x:Name="seasonSelect" PlaceholderText="Season" Height="51" Width="259"
-                          SelectionChanged="season_SelectionChanged" Margin="0,0,0,10" Loading="season_Loading" >
+                          SelectionChanged="season_SelectionChanged" Margin="0,0,0,10" Loading="season_Loading" IsEnabled="False">
 
 
 

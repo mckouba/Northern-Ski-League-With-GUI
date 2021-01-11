@@ -12,15 +12,27 @@
 //just make a new database every season?
 DBLite::DBLite() {
 
+}
+
+void DBLite::connect(std::string type) {
+
+	//open the correct database
 	auto location = getCurrentLocation();
-
-	std::string dbLocation = location + "\\test.db";
-
+	std::string dbLocation;
+	if (type.compare("Ski") == 0) {
+		dbLocation = location + "\\ski.db";
+	}
+	else {
+		dbLocation = location + "\\snowboard.db";
+	}
 	rc = sqlite3_open_v2(dbLocation.c_str(), &db, SQLITE_OPEN_CREATE | SQLITE_OPEN_READWRITE, NULL);
 
 	checkDBErrors();
-}
 
+
+
+
+}
 
 //callback functions
 //oputput will be in athlete_temp
@@ -140,58 +152,225 @@ void DBLite::checkDBErrors() {
 
 
 void DBLite::insertDataAthletes(const char* bib, const char* name, const char* team, const char* gender, const char* season) {
-
 	char* query;
 	int n;
 
-	//build string 
-	n = snprintf(NULL, 0, "INSERT INTO Athletes ('bib', 'name', 'team', 'gender', 'season') VALUES ( %s, '%s', '%s', '%s', '%s');", bib, name, team, gender, season);
+	//check to see if record exists
+	n = snprintf(NULL, 0, "SELECT * FROM Athletes WHERE bib=%s and season='%s';", bib, season);
 
 	query = (char*)malloc(n + 1);
 
-	n = snprintf(query, n + 1, "INSERT INTO Athletes ('bib', 'name', 'team', 'gender', 'season') VALUES ( %s, '%s', '%s', '%s', '%s');", bib, name, team, gender, season);
+	n = snprintf(query, n + 1, "SELECT * FROM Athletes WHERE bib=%s and season='%s';", bib, season);
 
-	//prepare query
 	sqlite3_prepare(db, query, strlen(query), &stmt, NULL);
 
 	//test it
 	rc = sqlite3_step(stmt);
-	checkDBErrors();
-
-	//finalize usage
 	sqlite3_finalize(stmt);
 
+	if (rc != 100) {
+		//build string 
+		n = snprintf(NULL, 0, "INSERT INTO Athletes ('bib', 'name', 'team', 'gender', 'season') VALUES ( %s, '%s', '%s', '%s', '%s');", bib, name, team, gender, season);
+
+		query = (char*)malloc(n + 1);
+
+		n = snprintf(query, n + 1, "INSERT INTO Athletes ('bib', 'name', 'team', 'gender', 'season') VALUES ( %s, '%s', '%s', '%s', '%s');", bib, name, team, gender, season);
+		
+		sqlite3_prepare(db, query, strlen(query), &stmt, NULL);
+
+		//test it
+		rc = sqlite3_step(stmt);
+		sqlite3_finalize(stmt);
+
+	}
+	else {
+	//do nothing as the athlete already exists
+	}
 	//free up space
 	free(query);
-
 }
 
+
+
+//basics for inserting data invloves:
+
+/*
+
+We will first execure a select command for the bib that was provivided.
+
+If the command reutrns SQLITE_ROW or rc=100 we know that the result exists and we will just update the record
+
+If it returns anything other than SQLITE_ROW or rc!=100 we will do an INSERT command and create a new recod.
+
+*/
 void DBLite::insertDataMeets_sl(const char* bib, const char* sl_time, const char* sl_points, const char* season, const char* meet_id) {
 	char* query;
 	int n;
 
-	//build string 
-	n = snprintf(NULL, 0, "INSERT INTO meets ('bib', 'sl_time', 'sl_points', 'season', 'meet_id') VALUES ( %s, %s, %s, '%s', '%s');", bib, sl_time, sl_points, selectedValues[2].c_str(), meet_id);
+	//check to see if record exists
+	n = snprintf(NULL, 0, "SELECT * FROM meets WHERE bib=%s and meet_id=%s and season='%s';", bib, meet_id, selectedValues[2].c_str());
 
 	query = (char*)malloc(n + 1);
 
-	n = snprintf(query, n + 1, "INSERT INTO meets ('bib', 'sl_time', 'sl_points', 'season', 'meet_id') VALUES ( %s, %s, %s, '%s', '%s');", bib, sl_time, sl_points, selectedValues[2].c_str(), meet_id);
+	n = snprintf(query, n + 1, "SELECT * FROM meets WHERE bib=%s and meet_id=%s and season='%s';", bib, meet_id, selectedValues[2].c_str());
 
-	//prepare query
 	sqlite3_prepare(db, query, strlen(query), &stmt, NULL);
 
 	//test it
 	rc = sqlite3_step(stmt);
-	checkDBErrors();
-
-	//finalize usage
 	sqlite3_finalize(stmt);
 
+	if (rc != 100) {
+		//build string 
+		n = snprintf(NULL, 0, "INSERT INTO meets ('bib', 'sl_time', 'sl_points', 'season', 'meet_id') VALUES ( %s, %s, %s, '%s', %s);", bib, sl_time, sl_points, selectedValues[2].c_str(), meet_id);
+
+		query = (char*)malloc(n + 1);
+
+		n = snprintf(query, n + 1, "INSERT INTO meets ('bib', 'sl_time', 'sl_points', 'season', 'meet_id') VALUES ( %s, %s, %s, '%s', %s);", bib, sl_time, sl_points, selectedValues[2].c_str(), meet_id);
+
+		//prepare query
+		sqlite3_prepare(db, query, strlen(query), &stmt, NULL);
+
+		//test it
+		rc = sqlite3_step(stmt);
+		checkDBErrors();
+
+		//finalize usage
+		sqlite3_finalize(stmt);
+	}
+	else {
+		//build string 
+		n = snprintf(NULL, 0, "UPDATE meets SET sl_time=%s, sl_points=%s WHERE bib=%s and meet_id=%s and season='%s';", sl_time, sl_points, bib, meet_id, selectedValues[2].c_str());
+
+		query = (char*)malloc(n + 1);
+
+		n = snprintf(query, n + 1, "UPDATE meets SET sl_time=%s, sl_points=%s WHERE bib=%s and meet_id=%s and season='%s';", sl_time, sl_points, bib, meet_id, selectedValues[2].c_str());
+
+		//prepare query
+		sqlite3_prepare(db, query, strlen(query), &stmt, NULL);
+
+		//test it
+		rc = sqlite3_step(stmt);
+		checkDBErrors();
+
+		//finalize usage
+		sqlite3_finalize(stmt);
+	}
 	//free up space
 	free(query);
 }
-void DBLite::insertDataMeets_gs(char* bib, char* gs_time, char* gs_points, char* season, char* meet_id) {}
-void DBLite::insertDataMeets_sg(char* bib, char* sg_time, char* sg_points, char* season, char* meet_id) {}
+void DBLite::insertDataMeets_gs(const char* bib, const char* gs_time, const char* gs_points, const char* season, const char* meet_id) {
+	char* query;
+	int n;
+
+	//check to see if record exists
+	n = snprintf(NULL, 0, "SELECT * FROM meets WHERE bib=%s and meet_id=%s and season='%s';", bib, meet_id, selectedValues[2].c_str());
+
+	query = (char*)malloc(n + 1);
+
+	n = snprintf(query, n + 1, "SELECT * FROM meets WHERE bib=%s and meet_id=%s and season='%s';", bib, meet_id, selectedValues[2].c_str());
+
+	sqlite3_prepare(db, query, strlen(query), &stmt, NULL);
+
+	//test it
+	rc = sqlite3_step(stmt);
+	sqlite3_finalize(stmt);
+
+	if (rc != 100) {
+		//build string 
+		n = snprintf(NULL, 0, "INSERT INTO meets ('bib', 'gs_time', 'gs_points', 'season', 'meet_id') VALUES ( %s, %s, %s, '%s', %s);", bib, gs_time, gs_points, selectedValues[2].c_str(), meet_id);
+
+		query = (char*)malloc(n + 1);
+
+		n = snprintf(query, n + 1, "INSERT INTO meets ('bib', 'gs_time', 'gs_points', 'season', 'meet_id') VALUES ( %s, %s, %s, '%s', %s);", bib, gs_time, gs_points, selectedValues[2].c_str(), meet_id);
+
+		//prepare query
+		sqlite3_prepare(db, query, strlen(query), &stmt, NULL);
+
+		//test it
+		rc = sqlite3_step(stmt);
+		checkDBErrors();
+
+		//finalize usage
+		sqlite3_finalize(stmt);
+	}
+	else {
+		//build string 
+		n = snprintf(NULL, 0, "UPDATE meets SET gs_time=%s, gs_points=%s WHERE bib=%s and meet_id=%s and season='%s';", gs_time, gs_points, bib, meet_id, selectedValues[2].c_str());
+
+		query = (char*)malloc(n + 1);
+
+		n = snprintf(query, n + 1, "UPDATE meets SET gs_time=%s, gs_points=%s WHERE bib=%s and meet_id=%s and season='%s';", gs_time, gs_points, bib, meet_id, selectedValues[2].c_str());
+
+		//prepare query
+		sqlite3_prepare(db, query, strlen(query), &stmt, NULL);
+
+		//test it
+		rc = sqlite3_step(stmt);
+		checkDBErrors();
+
+		//finalize usage
+		sqlite3_finalize(stmt);
+	}
+	//free up space
+	free(query);
+}
+void DBLite::insertDataMeets_sg(const char* bib, const char* sg_time, const char* sg_points, const char* season, const char* meet_id) {
+	char* query;
+	int n;
+
+	//check to see if record exists
+	n = snprintf(NULL, 0, "SELECT * FROM meets WHERE bib=%s and meet_id=%s and season='%s';", bib, meet_id, selectedValues[2].c_str());
+
+	query = (char*)malloc(n + 1);
+
+	n = snprintf(query, n + 1, "SELECT * FROM meets WHERE bib=%s and meet_id=%s and season='%s';", bib, meet_id, selectedValues[2].c_str());
+
+	sqlite3_prepare(db, query, strlen(query), &stmt, NULL);
+
+	//test it
+	rc = sqlite3_step(stmt);
+	sqlite3_finalize(stmt);
+
+	if (rc != 100) {
+		//build string 
+		n = snprintf(NULL, 0, "INSERT INTO meets ('bib', 'sg_time', 'sg_points', 'season', 'meet_id') VALUES ( %s, %s, %s, '%s', %s);", bib, sg_time, sg_points, selectedValues[2].c_str(), meet_id);
+
+		query = (char*)malloc(n + 1);
+
+		n = snprintf(query, n + 1, "INSERT INTO meets ('bib', 'sg_time', 'sg_points', 'season', 'meet_id') VALUES ( %s, %s, %s, '%s', %s);", bib, sg_time, sg_points, selectedValues[2].c_str(), meet_id);
+
+		//prepare query
+		sqlite3_prepare(db, query, strlen(query), &stmt, NULL);
+
+		//test it
+		rc = sqlite3_step(stmt);
+		checkDBErrors();
+
+		//finalize usage
+		sqlite3_finalize(stmt);
+	}
+	else {
+		//build string 
+		n = snprintf(NULL, 0, "UPDATE meets SET sg_time=%s, sg_points=%s WHERE bib=%s and meet_id=%s and season='%s';", sg_time, sg_points, bib, meet_id, selectedValues[2].c_str());
+
+		query = (char*)malloc(n + 1);
+
+		n = snprintf(query, n + 1, "UPDATE meets SET sg_time=%s, sg_points=%s WHERE bib=%s and meet_id=%s and season='%s';", sg_time, sg_points, bib, meet_id, selectedValues[2].c_str());
+
+		//prepare query
+		sqlite3_prepare(db, query, strlen(query), &stmt, NULL);
+
+		//test it
+		rc = sqlite3_step(stmt);
+		checkDBErrors();
+
+		//finalize usage
+		sqlite3_finalize(stmt);
+	}
+	//free up space
+	free(query);
+}
 
 void DBLite::insertDataSeason(char* bib, char* sl_points, char* gs_points, char* sg_points, char* season) {}
 
@@ -303,3 +482,49 @@ void DBLite::closeDB() {
 	sqlite3_close(db);
 }
 
+void DBLite::updateSeasonResults(std::string season, int numOfMeets) {
+
+	//ensure that the number of meets is correct for each athlete for the season
+	verifySeasonResults(season, numOfMeets);
+
+
+	//time to execute sql command to calculate results
+
+	char* query;
+	int n;
+
+	//craft sql statement
+	n = snprintf(NULL, 0, " UPDATE Athletes SET sl_points = (SELECT SUM(sl_points) OVER(ORDER BY sl_points ROWS BETWEEN CURRENT ROW AND %s FOLLOWING) FROM meets WHERE meets.bib = Athletes.bib AND meets.season = Athletes.season LIMIT 1), gs_points = (SELECT SUM(gs_points) OVER(ORDER BY gs_points ROWS BETWEEN CURRENT ROW AND %s FOLLOWING) FROM meets WHERE meets.bib = Athletes.bib AND meets.season = Athletes.season LIMIT 1), sg_points = (SELECT SUM(sg_points) OVER(ORDER BY sg_points ROWS BETWEEN CURRENT ROW AND %s FOLLOWING) FROM meets WHERE meets.bib = Athletes.bib AND meets.season = Athletes.season LIMIT 1) WHERE season = '%s'; ", numOfMeets, numOfMeets, numOfMeets, selectedValues[2].c_str());
+
+	query = (char*)malloc(n + 1);
+
+	n = snprintf(query, n + 1, " UPDATE Athletes SET sl_points = (SELECT SUM(sl_points) OVER(ORDER BY sl_points ROWS BETWEEN CURRENT ROW AND %s FOLLOWING) FROM meets WHERE meets.bib = Athletes.bib AND meets.season = Athletes.season LIMIT 1), gs_points = (SELECT SUM(gs_points) OVER(ORDER BY gs_points ROWS BETWEEN CURRENT ROW AND %s FOLLOWING) FROM meets WHERE meets.bib = Athletes.bib AND meets.season = Athletes.season LIMIT 1), sg_points = (SELECT SUM(sg_points) OVER(ORDER BY sg_points ROWS BETWEEN CURRENT ROW AND %s FOLLOWING) FROM meets WHERE meets.bib = Athletes.bib AND meets.season = Athletes.season LIMIT 1) WHERE season = '%s'; ", numOfMeets, numOfMeets, numOfMeets, selectedValues[2].c_str());
+
+	sqlite3_prepare(db, query, strlen(query), &stmt, NULL);
+
+	//test it
+	rc = sqlite3_step(stmt);
+	sqlite3_finalize(stmt);
+
+
+	//free up space
+	free(query);
+}
+
+void DBLite::verifySeasonResults(std::string season, int numOfMeets) {
+
+
+
+
+
+
+}
+
+void DBLite::insertDNSData(std::string season, int bib, int meetNum) {
+
+	//get the number of athletes at that meet for the given gender
+	//gender can be gotten with a sql query
+
+
+
+}

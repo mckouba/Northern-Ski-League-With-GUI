@@ -15,10 +15,10 @@ int main(int argc, char** argv) {
 	else {
 		//all database things are done through a seperate class
 
-		DBLite sqldb;
-		sqldb.getData("Athletes");
+		//DBLite sqldb;
+		//sqldb.getData("Athletes");
 
-		sqldb.closeDB();
+		//sqldb.closeDB();
 
 	}
 
