@@ -254,6 +254,61 @@ std::vector<std::string> getSeasonsData() {
 	return out;
 }
 
+std::vector<std::string> getSeasonScoringData() {
+
+	auto location = getCurrentLocation();
+
+	std::string dir = location + "\\season_scoring_temp";
+	
+	//file pointer
+	std::fstream input;
+
+	//open file
+	input.open(dir.c_str(), std::ios::in);
+
+	//to store input strings
+	std::vector<std::string> rows;
+	//strings to store the input
+	std::string line, word, temp;
+
+	std::vector<std::string> out;
+
+	line = " ";
+
+	while (line != "") {
+		line = "";
+		rows.clear();
+
+		//read row of data
+		std::getline(input, line);
+
+		//get each item and put it at the end of the output list
+		std::string t = line;
+
+		//to breakup words
+		std::stringstream s(line);
+
+		while (std::getline(s, word, ',')) {
+
+			rows.push_back(word);
+
+		}if (line.compare("") != 0) {
+			//make selection string look like "Meet #[meet_id], [location], [date]
+			//example "Meet #1, Mt. Ashwabay, 2-21-2020"
+			std::string temp = word;
+			out.push_back(temp);
+		}
+
+	}
+
+	input.close();
+	//remove the temp file
+	DeleteFileA(dir.c_str());
+
+	return out;
+
+}
+
 std::vector<std::string> getMeet_Data() {
 
 	auto location = getCurrentLocation();

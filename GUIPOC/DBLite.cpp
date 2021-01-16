@@ -7,6 +7,7 @@
 
 #include "DBLite.h"
 #include "Helpers.h"
+#include "ImportAndExport.h"
 
 //TODO: figure out how to deal with people leaving and their bib being used by someone else
 //just make a new database every season?
@@ -148,7 +149,27 @@ void DBLite::checkDBErrors() {
 		std::cout << "DB Error: " << sqlite3_errmsg(db) << std::endl;
 	}
 }
+//output will be in season_scoring_temp
+//formatted as:
+//#of meets
+int season_scoringCallback(void* NotUsed, int argc, char** argv, char** azColName) {
+	//will print to temp file that can be read by other part of program
+//slow but it will do for now
+	auto location = getCurrentLocation();
 
+	std::string dir = location + "\\season_scoring_temp";
+
+	std::ofstream output(dir.c_str(), std::ios::app);
+
+	if (output.is_open()) {
+		//write to csv
+		output << argv[0] << ',' << argv[1] << std::endl;
+		//close file
+		output.close();
+	}
+
+	return 0;
+}
 
 
 void DBLite::insertDataAthletes(const char* bib, const char* name, const char* team, const char* gender, const char* season) {
@@ -482,10 +503,10 @@ void DBLite::closeDB() {
 	sqlite3_close(db);
 }
 
-void DBLite::updateSeasonResults(std::string season, int numOfMeets) {
+void DBLite::updateSeasonResults(std::string season) {
 
-	//ensure that the number of meets is correct for each athlete for the season
-	verifySeasonResults(season, numOfMeets);
+	//get the scoring rules for the season
+	std::vector<std::string> scoring = getSeasonScoring(season);
 
 
 	//time to execute sql command to calculate results
@@ -494,11 +515,11 @@ void DBLite::updateSeasonResults(std::string season, int numOfMeets) {
 	int n;
 
 	//craft sql statement
-	n = snprintf(NULL, 0, " UPDATE Athletes SET sl_points = (SELECT SUM(sl_points) OVER(ORDER BY sl_points ROWS BETWEEN CURRENT ROW AND %s FOLLOWING) FROM meets WHERE meets.bib = Athletes.bib AND meets.season = Athletes.season LIMIT 1), gs_points = (SELECT SUM(gs_points) OVER(ORDER BY gs_points ROWS BETWEEN CURRENT ROW AND %s FOLLOWING) FROM meets WHERE meets.bib = Athletes.bib AND meets.season = Athletes.season LIMIT 1), sg_points = (SELECT SUM(sg_points) OVER(ORDER BY sg_points ROWS BETWEEN CURRENT ROW AND %s FOLLOWING) FROM meets WHERE meets.bib = Athletes.bib AND meets.season = Athletes.season LIMIT 1) WHERE season = '%s'; ", numOfMeets, numOfMeets, numOfMeets, selectedValues[2].c_str());
+	n = snprintf(NULL, 0, "UPDATE Athletes SET sl_points = (SELECT SUM(sl_points) OVER (ORDER BY sl_points ROWS BETWEEN CURRENT ROW AND (%s - 1) FOLLOWING) FROM meet_results_view_%s WHERE meet_results_view_%s.bib = Athletes.bib AND meet_results_view_%s.season = Athletes.season LIMIT 1), gs_points = (SELECT SUM(gs_points) OVER(ORDER BY gs_points ROWS BETWEEN CURRENT ROW AND (%s - 1) FOLLOWING) FROM meet_results_view_%s WHERE meet_results_view_%s.bib = Athletes.bib AND meet_results_view_%s.season = Athletes.season LIMIT 1), sg_points = (SELECT SUM(sg_points) OVER(ORDER BY sg_points ROWS BETWEEN CURRENT ROW AND (%s - 1) FOLLOWING) FROM meet_results_view_%s WHERE meet_results_view_%s.bib = Athletes.bib AND meet_results_view_%s.season = Athletes.season LIMIT 1) WHERE season = '%s'; ", scoring.at(1) , scoring.at(0), scoring.at(0), scoring.at(0), scoring.at(1), scoring.at(0), scoring.at(0), scoring.at(0), scoring.at(1), scoring.at(0), scoring.at(0), scoring.at(0), season.c_str());
 
 	query = (char*)malloc(n + 1);
 
-	n = snprintf(query, n + 1, " UPDATE Athletes SET sl_points = (SELECT SUM(sl_points) OVER(ORDER BY sl_points ROWS BETWEEN CURRENT ROW AND %s FOLLOWING) FROM meets WHERE meets.bib = Athletes.bib AND meets.season = Athletes.season LIMIT 1), gs_points = (SELECT SUM(gs_points) OVER(ORDER BY gs_points ROWS BETWEEN CURRENT ROW AND %s FOLLOWING) FROM meets WHERE meets.bib = Athletes.bib AND meets.season = Athletes.season LIMIT 1), sg_points = (SELECT SUM(sg_points) OVER(ORDER BY sg_points ROWS BETWEEN CURRENT ROW AND %s FOLLOWING) FROM meets WHERE meets.bib = Athletes.bib AND meets.season = Athletes.season LIMIT 1) WHERE season = '%s'; ", numOfMeets, numOfMeets, numOfMeets, selectedValues[2].c_str());
+	n = snprintf(query, n + 1, "UPDATE Athletes SET sl_points = (SELECT SUM(sl_points) OVER (ORDER BY sl_points ROWS BETWEEN CURRENT ROW AND (%s - 1) FOLLOWING) FROM meet_results_view_%s WHERE meet_results_view_%s.bib = Athletes.bib AND meet_results_view_%s.season = Athletes.season LIMIT 1), gs_points = (SELECT SUM(gs_points) OVER(ORDER BY gs_points ROWS BETWEEN CURRENT ROW AND (%s - 1) FOLLOWING) FROM meet_results_view_%s WHERE meet_results_view_%s.bib = Athletes.bib AND meet_results_view_%s.season = Athletes.season LIMIT 1), sg_points = (SELECT SUM(sg_points) OVER(ORDER BY sg_points ROWS BETWEEN CURRENT ROW AND (%s - 1) FOLLOWING) FROM meet_results_view_%s WHERE meet_results_view_%s.bib = Athletes.bib AND meet_results_view_%s.season = Athletes.season LIMIT 1) WHERE season = '%s'; ", scoring.at(1), scoring.at(0), scoring.at(0), scoring.at(0), scoring.at(1), scoring.at(0), scoring.at(0), scoring.at(0), scoring.at(1), scoring.at(0), scoring.at(0), scoring.at(0), season.c_str());
 
 	sqlite3_prepare(db, query, strlen(query), &stmt, NULL);
 
@@ -510,12 +531,31 @@ void DBLite::updateSeasonResults(std::string season, int numOfMeets) {
 	//free up space
 	free(query);
 }
+//will return array with values of [view#],[#Following]
+std::vector<std::string> DBLite::getSeasonScoring(std::string season) {
 
-void DBLite::verifySeasonResults(std::string season, int numOfMeets) {
+	char* query;
+	int n;
+
+	n = snprintf(NULL, 0, "SELECT num_scoring_meets,scoring_meth FROM seasons WHERE season='%s'", season.c_str());
+
+	query = (char*)malloc(n + 1);
+
+	n = snprintf(query, n + 1, "SELECT num_scoring_meets,scoring_meth FROM seasons WHERE season='%s'", season.c_str());
+
+	sqlite3_exec(db, query, season_scoringCallback, 0, &zErrMsg);
+
+	sqlite3_prepare(db, query, strlen(query), &stmt, NULL);
+
+	//test it
+	rc = sqlite3_step(stmt);
+	sqlite3_finalize(stmt);
 
 
+	//free up space
+	free(query);
 
-
+	return getSeasonScoringData();
 
 
 }

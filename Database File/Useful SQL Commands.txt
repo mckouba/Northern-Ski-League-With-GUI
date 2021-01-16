@@ -1,5 +1,7 @@
 ++----------------------Table Definitions----------------------++
 
+##Individiual data
+
 CREATE TABLE Athletes (
 bib INTEGER,
 name STRING,
@@ -63,21 +65,79 @@ CREATE TABLE meet_data(
 meet_id INTEGER,
 date DATE,
 location STRING,
+num_athletes_m INTEGER,
+num_athletes_f INTEGER,
 season STRING REFERENCES seasons(season)
 );
 
 ++----------------------View Generating Commands----------------------++
 
-##view that can easily get meet results 
+##view that contains the DNS bibs and their respective results
+CREATE VIEW dns_results
+as select bib,
+       88888.0 as sl_time,
+       88888.0 as gs_time, 
+       88888.0 as sg_time, 
+       (CASE gender WHEN 'M' THEN meet_data.num_athletes_m ELSE meet_data.num_athletes_f END) + 1 AS sl_points, 
+       (CASE gender WHEN 'M' THEN meet_data.num_athletes_m ELSE meet_data.num_athletes_f END) + 1 AS gs_points, 
+       (CASE gender WHEN 'M' THEN meet_data.num_athletes_m ELSE meet_data.num_athletes_f END) + 1 AS sg_points,
+       ((CASE gender WHEN 'M' THEN meet_data.num_athletes_m ELSE meet_data.num_athletes_f END) + 1) * 3 AS total_points,
+       266664 as total_time,
+       Athletes.season,
+       meet_data.meet_id
+from Athletes 
+inner join meet_data using(season) 
+where meet_data.meet_id not in (select meet_id from meets where meets.bib=Athletes.bib and meets.season=Athletes.season);
+
+##view that can easily get meet results including DNS resluts
 CREATE VIEW meet_results_view 
-AS SELECT Athletes.gender, Athletes.bib, Athletes.name, Athletes.team, Athletes.season, meets.sl_time, meets.sl_points, meets.gs_time, meets.gs_points, meets.sg_time, meets.sg_points, meets.total_points, meets.total_time, meet_id 
+AS SELECT Athletes.gender, 
+       Athletes.bib, 
+       Athletes.name,
+       Athletes.team, 
+       Athletes.season, 
+       meets.sl_time,
+       meets.sl_points, 
+       meets.gs_time, 
+       meets.gs_points, 
+       meets.sg_time, 
+       meets.sg_points,
+       meets.total_points,
+       meets.total_time,  
+       meets.meet_id 
 FROM Athletes 
 INNER JOIN meets ON meets.bib=Athletes.bib
-ORDER BY meets.total_points;
+UNION
+SELECT Athletes.gender, 
+       Athletes.bib, 
+       Athletes.name,
+       Athletes.team, 
+       Athletes.season, 
+       dns_results.sl_time,
+       dns_results.sl_points, 
+       dns_results.gs_time, 
+       dns_results.gs_points, 
+       dns_results.sg_time, 
+       dns_results.sg_points,
+       dns_results.total_points,
+       dns_results.total_time,  
+       dns_results.meet_id
+FROM dns_results
+INNER JOIN Athletes USING(bib)
+ORDER BY Athletes.bib;
 
 ##select statement for above view
 ##its also possible to use a different select to get different data
  select * from meet_results_view where meet_id=[1,2,3,4,5,....] and gender=['M','F'];
+
+
+
+#create a view of the number of people at each meet seperated by season, gender, and meet number								 
+#create view num_athletes_meet as select count(meet_id) as num, meet_id, athletes.gender as gender, Athletes.season as season from meets inner join athletes on athletes.bib=meets.bib where meet_id in (select meet_id from meet_data) and (select gender from Athletes where athletes.bib=meets.bib)=athletes.gender group by meet_id, gender order by gender, meet_id;
+
+
+##get number of meets each bib attended
+create view num_meets_attended_bib as select bib, count(*) count from meets group by bib order by count;
 
 
 ++----------------------Commands----------------------++
@@ -140,9 +200,9 @@ SET sl_points=(
 										  ORDER BY sl_points 
 										  ROWS BETWEEN CURRENT ROW AND [1,2,3,4,...] FOLLOWING
 										  )
-				FROM meets 
-				WHERE meets.bib=Athletes.bib
-				AND meets.season=Athletes.season
+				FROM meet_results_view 
+				WHERE meet_results_view.bib=Athletes.bib
+				AND meet_results_view.season=Athletes.season
 				LIMIT 1
 				),
 gs_points=(
@@ -150,9 +210,9 @@ gs_points=(
 										  ORDER BY gs_points 
 										  ROWS BETWEEN CURRENT ROW AND [1,2,3,4,...] FOLLOWING
 										  )
-				FROM meets 
-				WHERE meets.bib=Athletes.bib
-				AND meets.season=Athletes.season
+				FROM meet_results_view 
+				WHERE meet_results_view.bib=Athletes.bib
+				AND meet_results_view.season=Athletes.season
 				LIMIT 1
 				),
 sg_points=(
@@ -160,9 +220,9 @@ sg_points=(
 										  ORDER BY sg_points 
 										  ROWS BETWEEN CURRENT ROW AND [1,2,3,4,...] FOLLOWING
 										  )
-				FROM meets 
-				WHERE meets.bib=Athletes.bib
-				AND meets.season=Athletes.season
+				FROM meet_results_view 
+				WHERE meet_results_view.bib=Athletes.bib
+				AND meet_results_view.season=Athletes.season
 				LIMIT 1
 				)
 WHERE season=['2019-20, '2020-21', ...];
@@ -180,7 +240,63 @@ SELECT COUNT(meet_id) from meets where bib=[bib of racer] and season=['2019-20, 
 select bib from Athletes where not exists(Select meets.bib from meets where  meets.bib = Athletes.bib and meet_id=[1,2,3,4,5,....]);
 
 
-++----------------------Prototyping Statements----------------------++
+##Get the number of athletes at each meet seperated by gender and meet id
+select count(meet_id), meet_id, athletes.gender from meets inner join athletes on athletes.bib=meets.bib where meet_id in (select meet_id from meet_data) and (select gender from Athletes where athletes.bib=meets.bib)=athletes.gender group by meet_id, gender order by gender, meet_id;
+
+##sequence of statements to populate meet 
+			
+
+#step 2
+update meet_data set num_athletes_m=( select num from temp where temp.meet_id=meet_data.meet_id and temp.gender='M' and meet_data.season=temp.season),
+				 num_athletes_f=(select num from temp where temp.meet_id=meet_data.meet_id and temp.gender='F' and meet_data.season=temp.season);
+#step 3
+drop table temp;
+
+##IMPORTANT
+##Statement that will return which bib did not attend which meet
+select bib, meet_data.meet_id from Athletes inner join meet_data using(season) where meet_data.meet_id not in (select meet_id from meets where Athletes.bib=meets.bib);
+
+
+##WILL SELECT ALL OF THE ATHLETES FROM EVERY MEET INCLUDING PEOPLE THAT DID NOT ATTEND
+SELECT Athletes.gender, 
+       Athletes.bib, 
+       Athletes.name,
+       Athletes.team, 
+       Athletes.season, 
+       meets.sl_time,
+       meets.sl_points, 
+       meets.gs_time, 
+       meets.gs_points, 
+       meets.sg_time, 
+       meets.sg_points,
+       meets.total_points,
+       meets.total_time,  
+       meets.meet_id 
+FROM Athletes 
+INNER JOIN meets ON meets.bib=Athletes.bib
+UNION
+SELECT Athletes.gender, 
+       Athletes.bib, 
+       Athletes.name,
+       Athletes.team, 
+       Athletes.season, 
+       test.sl_time,
+       test.sl_points, 
+       test.gs_time, 
+       test.gs_points, 
+       test.sg_time, 
+       test.sg_points,
+       test.total_points,
+       test.total_time,  
+       test.meet_id
+FROM test
+INNER JOIN Athletes USING(bib)
+ORDER BY Athletes.bib;
+
+
+
+
+++----------------------Prototype Statements----------------------++
 ##this statement correctly calculates sl points for a athlete that has misseed a meet but has attended others
 UPDATE Athletes
 SET sl_points=(
@@ -215,3 +331,62 @@ SET sl_points=(
 				)
 WHERE bib=527
 AND season='2019-20';
+
+
+#calcualte top based on the total points based on total poins
+#
+
+CREATE VIEW test 
+AS SELECT Athletes.gender, 
+		  Athletes.bib, 
+		  Athletes.name, 
+		  Athletes.team, 
+		  Athletes.season, 
+		  meets.sl_time,
+		  CASE WHEN NOT EXISTS(Select 1 from meets inner join Athletes using(bib) where meet_id=meets.meet_id and Athletes.bib=meets.bib)
+			   THEN (SELECT CASE Athletes.gender WHEN 'M' THEN meet_data.num_athletes_m ELSE meet_data.num_athletes_f END FROM meet_data) + 1
+			   ELSE (SELECT sl_points from meets WHERE Athletes.bib=meets.bib and Athletes.season=meets.season)
+			   END,
+		  meets.gs_time, 
+		  CASE WHEN NOT EXISTS(Select 1 from meets inner join Athletes using(bib) where meet_id in (SELECT meet_id from meet_data) and Athletes.bib=meets.bib)
+			   THEN (SELECT CASE Athletes.gender WHEN 'M' THEN meet_data.num_athletes_m ELSE meet_data.num_athletes_f END FROM meet_data) + 1
+			   ELSE (SELECT gs_points from meets WHERE Athletes.bib=meets.bib and Athletes.season=meets.season)
+			   END, 
+		  meets.sg_time, 
+		  CASE WHEN NOT EXISTS(Select 1 from meets inner join Athletes using(bib) where meet_id in (SELECT meet_id from meet_data) and Athletes.bib=meets.bib)
+			   THEN (SELECT CASE Athletes.gender WHEN 'M' THEN meet_data.num_athletes_m ELSE meet_data.num_athletes_f END FROM meet_data) + 1
+			   ELSE (SELECT sg_points from meets WHERE Athletes.bib=meets.bib and Athletes.season=meets.season)
+			   END, 
+		  meets.total_points, 
+		  meets.total_time, 
+		  meet_data.meet_id 
+FROM Athletes 
+INNER JOIN meets ON meets.bib=Athletes.bib
+INNER JOIN meet_data ON meets.meet_id=meet_data.meet_id
+ORDER BY meets.total_points;
+
+
+
+CREATE VIEW test
+AS SELECT Athletes.bib,
+		  CASE WHEN NOT EXISTS(Select 1 from meets inner join Athletes using(bib) left join meet_data using(meet_id) where meet_id=meet_data.meet_id and Athletes.bib=meets.bib)
+			   THEN (SELECT CASE Athletes.gender WHEN 'M' THEN meet_data.num_athletes_m ELSE meet_data.num_athletes_f END FROM meet_data) + 1
+			   ELSE (SELECT sl_points FROM meets inner join meet_data using(meet_id) where meet_id=meet_data.meet_id and Athletes.bib=meets.bib and Athletes.season=meets.season)
+			   END,
+		  CASE WHEN NOT EXISTS(Select 1 from meets inner join Athletes using(bib) left join meet_data using(meet_id) where meet_id=meet_data.meet_id and Athletes.bib=meets.bib)
+			   THEN (SELECT CASE Athletes.gender WHEN 'M' THEN meet_data.num_athletes_m ELSE meet_data.num_athletes_f END FROM meet_data) + 1
+			   ELSE (SELECT gs_points from meets inner join meet_data using(meet_id) where meet_id=meet_data.meet_id and Athletes.bib=meets.bib and Athletes.season=meets.season)
+			   END,
+		  CASE WHEN NOT EXISTS(Select 1 from meets inner join Athletes using(bib) left join meet_data using(meet_id) where meet_id=meet_data.meet_id and Athletes.bib=meets.bib)
+			   THEN (SELECT CASE Athletes.gender WHEN 'M' THEN meet_data.num_athletes_m ELSE meet_data.num_athletes_f END FROM meet_data) + 1
+			   ELSE (SELECT sg_points from meets inner join meet_data using(meet_id) where meet_id=meet_data.meet_id and Athletes.bib=meets.bib and Athletes.season=meets.season)
+			   END,
+		  meet_data.meet_id as meet_id
+FROM AThletes
+INNER JOIN meet_data USING(season)
+ORDER BY Athletes.bib;
+
+SELECT bib, CASE WHEN NOT EXISTS(Select 1 from meets inner join Athletes using(bib) where meet_id=2 and Athletes.bib=meets.bib)
+			   THEN (SELECT CASE Athletes.gender WHEN 'M' THEN meet_data.num_athletes_m ELSE meet_data.num_athletes_f END FROM meet_data) + 1
+			   ELSE (SELECT sl_points from meets WHERE Athletes.bib=meets.bib and Athletes.season=meets.season)
+			   END FROM Athletes;
