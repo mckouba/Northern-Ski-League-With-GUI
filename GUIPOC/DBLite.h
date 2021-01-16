@@ -46,9 +46,9 @@ public:
 	//update a meet's information	
 	void updateDataMeet_Data(const char* meet_id, const char* date, const char* location);
 	//function to generate the season data and update the season table
-	void updateSeasonResults(std::string season, int numOfMeets);
+	void updateSeasonResults(std::string season);
 	//function to make sure there are the correct number of meet results for each racer prior to season calculation
-	void verifySeasonResults(std::string season, int numOfMeets);
+	std::vector<std::string> getSeasonScoring(std::string season);
 	//funciton to insert DNS data into the datagbase
 	void insertDNSData(std::string season, int bib, int meetNum);
 	//get data from the requested table

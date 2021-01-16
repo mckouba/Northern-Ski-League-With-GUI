@@ -1,0 +1,91 @@
+--step 1:create a view that has the information for each person that has not attended a meet
+--will most likely add a column in season that defines dns values and might be able to query it here to change dns points.
+CREATE VIEW dns_results
+as select bib,
+       88888.0 as sl_time,
+       88888.0 as gs_time, 
+       88888.0 as sg_time, 
+       (CASE gender WHEN 'M' THEN meet_data.num_athletes_m ELSE meet_data.num_athletes_f END) + 1 AS sl_points, 
+       (CASE gender WHEN 'M' THEN meet_data.num_athletes_m ELSE meet_data.num_athletes_f END) + 1 AS gs_points, 
+       (CASE gender WHEN 'M' THEN meet_data.num_athletes_m ELSE meet_data.num_athletes_f END) + 1 AS sg_points,
+       ((CASE gender WHEN 'M' THEN meet_data.num_athletes_m ELSE meet_data.num_athletes_f END) + 1) * 3 AS total_points,
+       266664 as total_time,
+       Athletes.season,
+       meet_data.meet_id
+from Athletes 
+inner join meet_data using(season) 
+where meet_data.meet_id not in (select meet_id from meets where meets.bib=Athletes.bib and meets.season=Athletes.season);
+
+--step 2:Create a view that combines the data from the DNS table and the actual meet results table
+CREATE VIEW meet_results_view 
+AS SELECT Athletes.gender, 
+       Athletes.bib, 
+       Athletes.name,
+       Athletes.team, 
+       Athletes.season, 
+       meets.sl_time,
+       meets.sl_points, 
+       meets.gs_time, 
+       meets.gs_points, 
+       meets.sg_time, 
+       meets.sg_points,
+       meets.total_points,
+       meets.total_time,  
+       meets.meet_id 
+FROM Athletes 
+INNER JOIN meets ON meets.bib=Athletes.bib
+UNION
+SELECT Athletes.gender, 
+       Athletes.bib, 
+       Athletes.name,
+       Athletes.team, 
+       Athletes.season, 
+       dns_results.sl_time,
+       dns_results.sl_points, 
+       dns_results.gs_time, 
+       dns_results.gs_points, 
+       dns_results.sg_time, 
+       dns_results.sg_points,
+       dns_results.total_points,
+       dns_results.total_time,  
+       dns_results.meet_id
+FROM dns_results
+INNER JOIN Athletes USING(bib)
+ORDER BY Athletes.bib;
+
+--step 3:Update the Athletes table with the information that is contained in the meet_results_view view based on the number of meets to be scored
+--I may possibly create a column in the seasons table that defines the season scoring and query it instead of manually entering the number [1,2,3,4,5,...]
+
+
+UPDATE Athletes
+SET sl_points=(
+			   SELECT SUM(sl_points) OVER( 
+										  ORDER BY sl_points 
+										  ROWS BETWEEN CURRENT ROW AND 4 FOLLOWING
+										  )
+				FROM meet_results_view 
+				WHERE meet_results_view.bib=Athletes.bib
+				AND meet_results_view.season=Athletes.season
+				LIMIT 1
+				),
+gs_points=(
+			   SELECT SUM(gs_points) OVER( 
+										  ORDER BY gs_points 
+										  ROWS BETWEEN CURRENT ROW AND 4 FOLLOWING
+										  )
+				FROM meet_results_view 
+				WHERE meet_results_view.bib=Athletes.bib
+				AND meet_results_view.season=Athletes.season
+				LIMIT 1
+				),
+sg_points=(
+			   SELECT SUM(sg_points) OVER( 
+										  ORDER BY sg_points 
+										  ROWS BETWEEN CURRENT ROW AND 4 FOLLOWING
+										  )
+				FROM meet_results_view 
+				WHERE meet_results_view.bib=Athletes.bib
+				AND meet_results_view.season=Athletes.season
+				LIMIT 1
+				)
+WHERE season='2019-20';
